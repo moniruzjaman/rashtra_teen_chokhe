@@ -349,6 +349,61 @@ blockquote {
   z-index: 40;
 }
 .panel button { box-shadow: var(--shadow); background: var(--card); }
+body.tts-on .panel { bottom: 92px; }
+
+.tts {
+  position: fixed;
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%) translateY(120%);
+  width: min(720px, calc(100vw - 24px));
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+  z-index: 45;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-family: var(--sans);
+  transition: transform .25s ease;
+}
+.tts.on { transform: translateX(-50%); }
+.tts .tts-now {
+  flex: 1 1 180px;
+  min-width: 0;
+  font-size: .82rem;
+  color: var(--mute);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tts select {
+  font: inherit;
+  background: var(--paper);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  min-height: 36px;
+  padding: 0 8px;
+}
+.speaking {
+  background: color-mix(in srgb, var(--gold) 28%, var(--hl));
+  border-radius: 6px;
+  box-decoration-break: clone;
+}
+
+.matter h3 { font-size: 1.62em; margin: 4px 0 18px; }
+.biblio { list-style: none; padding: 0; }
+.biblio li {
+  padding: 12px 0 12px 1.1em;
+  border-bottom: 1px dashed var(--line);
+  text-indent: -1.1em;
+  font-size: .98em;
+}
+.biblio cite { font-style: normal; font-weight: 700; }
 
 .home {
   min-height: 100vh;
@@ -423,7 +478,7 @@ blockquote {
 }
 
 @media print {
-  .bar, .prog, #toc, #scrim, .panel, .ch-nav { display: none !important; }
+  .bar, .prog, #toc, #scrim, .panel, .ch-nav, .tts { display: none !important; }
   main.reader, .hero, .section { padding: 0; max-width: none; }
   body { background: #fff; color: #111; }
 }

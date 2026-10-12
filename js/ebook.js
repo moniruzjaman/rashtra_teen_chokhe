@@ -109,8 +109,121 @@
   }
 
   addEventListener("keydown", function (e) {
-    if (e.key === "Escape") tog(false);
-    if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")) return;
+    if (e.key === "Escape") { tog(false); if (tts && tts.open) tts.close(); }
+    if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA" || e.target.tagName === "SELECT")) return;
     if (e.key === "/" && toc) { e.preventDefault(); tog(true); if (search) search.focus(); }
+    if ((e.key === " " || e.code === "Space") && tts && tts.open) { e.preventDefault(); tts.toggle(); }
   });
+
+  var tts = null;
+  if ("speechSynthesis" in window) {
+    tts = (function () {
+      var synth = window.speechSynthesis;
+      var units = [];
+      var idx = 0;
+      var speaking = false;
+      var paused = false;
+      var bar = $("ttsBar");
+      var nowEl = $("ttsNow");
+      var playBtn = $("ttsPlay");
+      var open = false;
+
+      function collect() {
+        units = [];
+        chapters.forEach(function (ch) {
+          var nodes = ch.querySelectorAll("h3, p, blockquote, li");
+          for (var i = 0; i < nodes.length; i++) {
+            var el = nodes[i];
+            var text = (el.innerText || el.textContent || "").replace(/\s+/g, " ").trim();
+            if (text.length > 1) units.push({ el: el, text: text, chapter: ch });
+          }
+        });
+      }
+      collect();
+
+      function pickVoice() {
+        var voices = synth.getVoices() || [];
+        var bn = voices.filter(function (v) {
+          return /bn|bengali|bangla/i.test((v.lang || "") + " " + (v.name || ""));
+        });
+        return bn[0] || voices.find(function (v) { return /^en/i.test(v.lang || ""); }) || voices[0] || null;
+      }
+
+      function mark(i) {
+        document.querySelectorAll(".speaking").forEach(function (n) { n.classList.remove("speaking"); });
+        if (i < 0 || i >= units.length) return;
+        units[i].el.classList.add("speaking");
+        units[i].el.scrollIntoView({ behavior: "smooth", block: "center" });
+        if (nowEl) nowEl.textContent = (units[i].chapter.dataset.title || "") + " · " + units[i].text.slice(0, 72);
+      }
+
+      function speakAt(i) {
+        if (!units.length) return;
+        if (i < 0) i = 0;
+        if (i >= units.length) { stop(); toast("পাঠ শেষ"); return; }
+        idx = i;
+        synth.cancel();
+        var u = new SpeechSynthesisUtterance(units[i].text);
+        u.lang = "bn-BD";
+        u.rate = parseFloat(($("ttsRate") && $("ttsRate").value) || "1");
+        var voice = pickVoice();
+        if (voice) u.voice = voice;
+        u.onstart = function () { speaking = true; paused = false; mark(i); if (playBtn) playBtn.textContent = "❚❚"; };
+        u.onend = function () {
+          if (!speaking) return;
+          speakAt(idx + 1);
+        };
+        u.onerror = function () { speaking = false; if (playBtn) playBtn.textContent = "▶"; };
+        synth.speak(u);
+      }
+
+      function currentIndex() {
+        var cur = null;
+        for (var i = 0; i < chapters.length; i++) {
+          if (chapters[i].getBoundingClientRect().top < 180) cur = chapters[i];
+        }
+        if (!cur) return 0;
+        for (var j = 0; j < units.length; j++) if (units[j].chapter === cur) return j;
+        return 0;
+      }
+
+      function play() {
+        if (paused) { synth.resume(); paused = false; speaking = true; if (playBtn) playBtn.textContent = "❚❚"; return; }
+        speakAt(speaking ? idx : currentIndex());
+      }
+      function pause() { synth.pause(); paused = true; speaking = false; if (playBtn) playBtn.textContent = "▶"; }
+      function stop() {
+        speaking = false; paused = false;
+        synth.cancel();
+        document.querySelectorAll(".speaking").forEach(function (n) { n.classList.remove("speaking"); });
+        if (playBtn) playBtn.textContent = "▶";
+        if (nowEl) nowEl.textContent = "শুনুন";
+      }
+      function toggle() { if (speaking && !paused) pause(); else play(); }
+      function show() {
+        open = true;
+        if (bar) { bar.hidden = false; bar.classList.add("on"); }
+        document.body.classList.add("tts-on");
+      }
+      function close() {
+        open = false;
+        stop();
+        if (bar) bar.classList.remove("on");
+        document.body.classList.remove("tts-on");
+      }
+
+      if ($("ttsToggle")) $("ttsToggle").onclick = function () { if (open) close(); else { show(); play(); } };
+      if (playBtn) playBtn.onclick = toggle;
+      if ($("ttsStop")) $("ttsStop").onclick = stop;
+      if ($("ttsPrev")) $("ttsPrev").onclick = function () { speakAt(idx - 1); };
+      if ($("ttsNext")) $("ttsNext").onclick = function () { speakAt(idx + 1); };
+      if ($("ttsRate")) $("ttsRate").onchange = function () { if (speaking) speakAt(idx); };
+      synth.onvoiceschanged = function () {};
+      addEventListener("beforeunload", stop);
+
+      return { toggle: toggle, close: close, get open() { return open; } };
+    })();
+  } else if ($("ttsToggle")) {
+    $("ttsToggle").onclick = function () { toast("এই ব্রাউজারে পাঠ্য পড়া সমর্থিত নয়"); };
+  }
 })();

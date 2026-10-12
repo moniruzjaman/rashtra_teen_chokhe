@@ -33,3 +33,6 @@ jobs:
           grep -q "id=\"chapter01\"" read.html
           grep -q "id=\"chapter26\"" read.html
           grep -q "id=\"authornote\"" read.html
+          grep -q "id=\"editorial\"" read.html
+          grep -q "id=\"bibliography\"" read.html
+          grep -q "speechSynthesis" js/ebook.js
