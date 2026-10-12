@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Required files exist
+        run: |
+          set -e
+          test -f index.html
+          test -f read.html
+          test -f 404.html
+          test -f css/ebook.css
+          test -f js/ebook.js
+          test -f assets/mark.svg
+          test -f downloads/rashtra-teen-chokhe.epub
+          test -f downloads/rashtra-teen-chokhe.pdf
+      - name: HTML has title and chapters
+        run: |
+          grep -q "রাষ্ট্রকে দেখা তিন চোখে" index.html
+          grep -q "id=\"chapter01\"" read.html
+          grep -q "id=\"chapter26\"" read.html
+          grep -q "id=\"authornote\"" read.html
