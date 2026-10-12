@@ -1,0 +1,28 @@
+name: Publish ebook release
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "downloads/**"
+      - ".github/workflows/release.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ebook
+          name: রাষ্ট্রকে দেখা তিন চোখে
+          body: |
+            EPUB ও PDF — নামানোর হিসাব এই রিলিজের অ্যাসেট থেকে আসে।
+          files: |
+            downloads/rashtra-teen-chokhe.epub
+            downloads/rashtra-teen-chokhe.pdf
+          fail_on_unmatched_files: true

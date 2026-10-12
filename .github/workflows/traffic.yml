@@ -1,0 +1,84 @@
+name: Snapshot GitHub traffic
+
+on:
+  schedule:
+    - cron: "15 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch views and clones
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -e
+          mkdir -p data
+          python3 - <<'PY'
+          import json, os, urllib.request
+          from datetime import datetime, timezone
+          token = os.environ["GH_TOKEN"]
+          repo = os.environ.get("GITHUB_REPOSITORY", "moniruzjaman/rashtra_teen_chokhe")
+          def get(path):
+              req = urllib.request.Request(
+                  "https://api.github.com/repos/%s/%s" % (repo, path),
+                  headers={
+                      "Accept": "application/vnd.github+json",
+                      "Authorization": "Bearer " + token,
+                      "X-GitHub-Api-Version": "2022-11-28",
+                      "User-Agent": "rashtra-teen-chokhe-traffic",
+                  },
+              )
+              try:
+                  with urllib.request.urlopen(req, timeout=30) as r:
+                      return json.load(r)
+              except Exception as e:
+                  print("skip", path, e)
+                  return {}
+          views = get("traffic/views")
+          clones = get("traffic/clones")
+          path = "data/stats.json"
+          try:
+              with open(path, encoding="utf-8") as f:
+                  snap = json.load(f)
+          except Exception:
+              snap = {}
+          hist = {row["date"]: row for row in snap.get("history", []) if "date" in row}
+          for row in views.get("views") or []:
+              day = (row.get("timestamp") or "")[:10]
+              if not day:
+                  continue
+              prev = hist.get(day, {"date": day, "views": 0, "uniques": 0})
+              prev["views"] = row.get("count", 0)
+              prev["uniques"] = row.get("uniques", 0)
+              hist[day] = prev
+          history = [hist[k] for k in sorted(hist)][-120:]
+          snap = {
+              "updated": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+              "views_14d": views.get("count", 0) or 0,
+              "uniques_14d": views.get("uniques", 0) or 0,
+              "clones_14d": clones.get("count", 0) or 0,
+              "clone_uniques_14d": clones.get("uniques", 0) or 0,
+              "history": history,
+          }
+          with open(path, "w", encoding="utf-8") as f:
+              json.dump(snap, f, ensure_ascii=False, indent=2)
+              f.write("\n")
+          print(json.dumps({k: snap[k] for k in snap if k != "history"}))
+          PY
+      - name: Commit snapshot
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/stats.json
+          if git diff --cached --quiet; then
+            echo "No traffic change"
+          else
+            git commit -m "chore: snapshot GitHub traffic"
+            git push
+          fi

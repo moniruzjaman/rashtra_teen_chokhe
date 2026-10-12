@@ -293,12 +293,25 @@ main.reader { max-width: var(--max); margin: 0 auto; padding: calc(var(--bar-h) 
 .chapter h3 { font-size: 1.62em; line-height: 1.45; margin: 4px 0 22px; font-weight: 700; }
 .chapter p { margin-bottom: 1.15em; }
 .chapter p.verse { line-height: 2.2; }
-blockquote {
+blockquote,
+.chapter-highlight {
   background: var(--hl);
   border-left: 4px solid var(--forest);
-  margin: 1.5em 0;
-  padding: 16px 20px;
+  margin: 1.5em 0 1.6em;
+  padding: 18px 22px 18px 20px;
   border-radius: 0 12px 12px 0;
+  font-style: italic;
+  position: relative;
+}
+blockquote::before,
+.chapter-highlight::before {
+  content: "\201C";
+  display: block;
+  font-style: normal;
+  font-size: 2.1em;
+  line-height: .6;
+  color: var(--gold);
+  margin-bottom: 8px;
 }
 .ch-nav {
   display: flex;
@@ -421,6 +434,13 @@ body.tts-on .panel { bottom: 92px; }
 }
 .author-home { max-width: 42rem; }
 .author-home .author-role { margin-bottom: 10px; }
+.stats-note {
+  color: var(--mute);
+  font-size: .9rem;
+  margin-top: 14px;
+  max-width: 38rem;
+}
+.hit-pixel { position: absolute; width: 0; height: 0; overflow: hidden; }
 
 .home {
   min-height: 100vh;
@@ -445,6 +465,7 @@ body.tts-on .panel { bottom: 92px; }
 }
 .hero-grid .cover-art { margin: 0; max-width: none; }
 .hero-grid .cta-row, .hero-grid .stats { justify-content: flex-start; margin-left: 0; }
+.live-stats { margin-top: 12px; }
 .mark { width: 92px; height: 92px; margin: 0 auto 22px; }
 .hero h1 { font-size: clamp(2.4rem, 8vw, 4.2rem); line-height: 1.28; }
 .hero .lede { margin: 16px auto 0; max-width: 38rem; color: var(--mute); font-size: 1.12rem; }

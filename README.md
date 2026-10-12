@@ -21,3 +21,9 @@
 ## সাইট
 
 স্ট্যাটিক HTML/CSS/JS। GitHub Pages থেকে সরাসরি পরিবেশিত।
+
+## পাঠক ও ডাউনলোড
+
+- সাইট দেখা: হোমপেজের লাইভ সংখ্যা
+- EPUB/PDF ডাউনলোড: [GitHub Releases](https://github.com/moniruzjaman/rashtra_teen_chokhe/releases/tag/ebook)
+- রিপোজিটরি ভিউ: [Traffic](https://github.com/moniruzjaman/rashtra_teen_chokhe/graphs/traffic) (মালিকের জন্য)

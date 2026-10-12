@@ -35,4 +35,8 @@ jobs:
           grep -q "id=\"authornote\"" read.html
           grep -q "id=\"editorial\"" read.html
           grep -q "id=\"bibliography\"" read.html
+          grep -q "id=\"author\"" read.html
+          grep -q "chapter-highlight" read.html
           grep -q "speechSynthesis" js/ebook.js
+          test -f js/stats.js
+          test -f data/stats.json

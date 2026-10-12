@@ -131,7 +131,7 @@
       function collect() {
         units = [];
         chapters.forEach(function (ch) {
-          var nodes = ch.querySelectorAll("h3, p, blockquote, li");
+          var nodes = ch.querySelectorAll("h3, p, blockquote, .chapter-highlight, li");
           for (var i = 0; i < nodes.length; i++) {
             var el = nodes[i];
             var text = (el.innerText || el.textContent || "").replace(/\s+/g, " ").trim();
