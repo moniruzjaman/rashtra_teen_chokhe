@@ -404,6 +404,23 @@ body.tts-on .panel { bottom: 92px; }
   font-size: .98em;
 }
 .biblio cite { font-style: normal; font-weight: 700; }
+.biblio cite a { text-decoration: none; }
+.biblio cite a:hover { text-decoration: underline; }
+.biblio-note {
+  display: block;
+  text-indent: 0;
+  margin-top: 4px;
+  color: var(--mute);
+  font-size: .92em;
+}
+.author-role {
+  color: var(--mute);
+  font-family: var(--sans);
+  font-size: .95rem;
+  margin: 0 0 18px;
+}
+.author-home { max-width: 42rem; }
+.author-home .author-role { margin-bottom: 10px; }
 
 .home {
   min-height: 100vh;
