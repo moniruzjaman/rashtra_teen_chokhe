@@ -1,0 +1,1351 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>রাষ্ট্রকে দেখা তিন চোখে - ইন্টারঅ্যাক্টিভ ইবুক</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --bg-color: #f9f7f2;
+            --text-color: #333;
+            --sidebar-bg: linear-gradient(180deg, #1b5e20, #2e7d32);
+            --accent-color: #3498db;
+            --highlight-color: #e8f4fc;
+            --border-color: #ddd;
+        }
+        
+        body {
+            font-family: 'Noto Sans Bengali', 'Kalpurush', Arial, sans-serif;
+            line-height: 1.8;
+            color: var(--text-color);
+            background: var(--bg-color);
+            transition: all 0.3s ease;
+        }
+        
+        /* Dark Mode */
+        body.dark-mode {
+            --bg-color: #1a1a1a;
+            --text-color: #e0e0e0;
+            --highlight-color: #2d3748;
+            --border-color: #444;
+        }
+        
+        /* Sepia Mode */
+        body.sepia-mode {
+            --bg-color: #f4ecd8;
+            --text-color: #5c4a3a;
+            --highlight-color: #e8dcc8;
+        }
+        
+        /* Control Panel */
+        .control-panel {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-color);
+            border-bottom: 2px solid var(--border-color);
+            padding: 10px 20px;
+            z-index: 2000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .control-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .control-btn {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .control-btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        .control-btn.active {
+            background: #c62828;
+        }
+        
+        /* Font Size Controls */
+        .font-control {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+        
+        #fontSize {
+            width: 60px;
+            padding: 5px;
+            border: 1px solid var(--border-color);
+            border-radius: 3px;
+            background: var(--bg-color);
+            color: var(--text-color);
+        }
+        
+        /* Progress Bar */
+        .progress-container {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--border-color);
+            z-index: 1999;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: var(--accent-color);
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        /* Main Layout */
+        .main-container {
+            display: flex;
+            margin-top: 64px;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            width: 320px;
+            background: var(--sidebar-bg);
+            color: white;
+            position: fixed;
+            left: 0;
+            top: 64px;
+            height: calc(100vh - 64px);
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .sidebar.hidden {
+            transform: translateX(-100%);
+        }
+        
+        /* Content Area */
+        .content-area {
+            flex: 1;
+            margin-left: 320px;
+            padding: 40px;
+            max-width: 900px;
+            margin-right: auto;
+            transition: margin-left 0.3s;
+        }
+        
+        .content-area.full-width {
+            margin-left: 0;
+        }
+        
+        /* Reading Mode Features */
+        .reading-stats {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--bg-color);
+            border: 2px solid var(--border-color);
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+        
+        .reading-stats h4 {
+            margin-bottom: 10px;
+            color: var(--accent-color);
+        }
+        
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+            font-size: 14px;
+        }
+        
+        /* Audio Player */
+        .audio-player {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-color);
+            border: 2px solid var(--accent-color);
+            padding: 15px 25px;
+            border-radius: 50px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            z-index: 1500;
+            display: none;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .audio-player.active {
+            display: flex;
+        }
+        
+        .audio-controls {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .audio-btn {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        .audio-btn:hover {
+            background: #2980b9;
+            transform: scale(1.1);
+        }
+        
+        /* Speed Control */
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        #playbackSpeed {
+            padding: 5px 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            background: var(--bg-color);
+            color: var(--text-color);
+        }
+        
+        /* Bookmark */
+        .bookmark-btn {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--accent-color);
+            transition: all 0.3s;
+        }
+        
+        .bookmark-btn.bookmarked {
+            color: #f39c12;
+        }
+        
+        /* Search Box */
+        .search-container {
+            margin: 20px;
+            position: relative;
+        }
+        
+        #searchInput {
+            width: 100%;
+            padding: 12px 40px 12px 15px;
+            border: 2px solid var(--border-color);
+            border-radius: 25px;
+            font-size: 16px;
+            background: var(--bg-color);
+            color: var(--text-color);
+        }
+        
+        .search-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--accent-color);
+        }
+        
+        /* Highlight Search Results */
+        .highlight {
+            background: #ffeb3b;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        
+        /* TOC Styles */
+        .toc-header {
+            padding: 25px 20px;
+            background: rgba(198, 40, 40, 0.9);
+            border-bottom: 3px solid #c62828;
+        }
+        
+        .toc-header h2 {
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .toc-part {
+            margin: 15px 0;
+            border-left: 3px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .toc-part:hover {
+            border-left-color: #ef5350;
+            background: rgba(255,255,255,0.05);
+        }
+        
+        .part-title {
+            padding: 12px 20px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .chapters-list {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s;
+            background: rgba(0,0,0,0.1);
+        }
+        
+        .chapters-list.show {
+            max-height: 1000px;
+        }
+        
+        .toc-chapter {
+            padding: 10px 20px 10px 40px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .toc-chapter:hover {
+            background: rgba(255,255,255,0.1);
+            padding-left: 45px;
+        }
+        
+        .toc-chapter.active {
+            background: rgba(239, 83, 80, 0.3);
+            font-weight: bold;
+        }
+        
+        /* Chapter Content */
+        .chapter {
+            margin-bottom: 50px;
+            scroll-margin-top: 80px;
+            position: relative;
+        }
+        
+        .chapter h3 {
+            font-size: 2rem;
+            color: var(--accent-color);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .chapter p {
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+            text-align: justify;
+            line-height: 2;
+        }
+        
+        .chapter-highlight {
+            background: var(--highlight-color);
+            padding: 20px;
+            border-left: 4px solid var(--accent-color);
+            margin: 25px 0;
+            font-style: italic;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        /* Notes Feature */
+        .note-input {
+            margin-top: 10px;
+            width: 100%;
+            padding: 10px;
+            border: 2px solid var(--border-color);
+            border-radius: 5px;
+            font-family: inherit;
+            background: var(--bg-color);
+            color: var(--text-color);
+            display: none;
+        }
+        
+        .note-input.active {
+            display: block;
+        }
+        
+        /* Floating Action Buttons */
+        .fab-container {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 1000;
+        }
+        
+        .fab {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .fab:hover {
+            transform: scale(1.1);
+            background: #2980b9;
+        }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 3000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: var(--bg-color);
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-color);
+        }
+        
+        /* Bookmarks List */
+        .bookmark-item {
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin: 10px 0;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .bookmark-item:hover {
+            background: var(--highlight-color);
+            transform: translateX(5px);
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.show {
+                transform: translateX(0);
+            }
+            
+            .content-area {
+                margin-left: 0;
+                padding: 20px;
+            }
+            
+            .control-panel {
+                padding: 5px 10px;
+            }
+            
+            .control-group {
+                font-size: 12px;
+            }
+            
+            .reading-stats {
+                bottom: 10px;
+                right: 10px;
+                padding: 10px;
+                font-size: 12px;
+            }
+            
+            .audio-player {
+                bottom: 10px;
+                padding: 10px 15px;
+            }
+        }
+        
+        /* Loading Animation */
+        .loading {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 4000;
+        }
+        
+        .loading.active {
+            display: block;
+        }
+        
+        .spinner {
+            border: 4px solid var(--border-color);
+            border-top: 4px solid var(--accent-color);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Control Panel -->
+    <div class="control-panel">
+        <div class="control-group">
+            <button class="control-btn" id="toggleSidebar">
+                <i class="fas fa-bars"></i>
+                <span>মেনু</span>
+            </button>
+            <button class="control-btn" id="toggleAudio">
+                <i class="fas fa-volume-up"></i>
+                <span>শুনুন</span>
+            </button>
+        </div>
+        
+        <div class="control-group font-control">
+            <button class="control-btn" id="decreaseFont">
+                <i class="fas fa-minus"></i>
+            </button>
+            <select id="fontSize">
+                <option value="0.9">ছোট</option>
+                <option value="1" selected>মাঝারি</option>
+                <option value="1.2">বড়</option>
+                <option value="1.4">অতি বড়</option>
+            </select>
+            <button class="control-btn" id="increaseFont">
+                <i class="fas fa-plus"></i>
+            </button>
+        </div>
+        
+        <div class="control-group">
+            <button class="control-btn" id="lightMode">
+                <i class="fas fa-sun"></i>
+            </button>
+            <button class="control-btn" id="darkMode">
+                <i class="fas fa-moon"></i>
+            </button>
+            <button class="control-btn" id="sepiaMode">
+                <i class="fas fa-book"></i>
+            </button>
+        </div>
+        
+        <div class="control-group">
+            <button class="control-btn" id="showBookmarks">
+                <i class="fas fa-bookmark"></i>
+                <span>বুকমার্ক</span>
+            </button>
+            <button class="control-btn" id="showNotes">
+                <i class="fas fa-sticky-note"></i>
+                <span>নোট</span>
+            </button>
+        </div>
+    </div>
+    
+    <!-- Progress Bar -->
+    <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+    
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="toc-header">
+                <h2><i class="fas fa-book-open"></i> সূচিপত্র</h2>
+            </div>
+            
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="খুঁজুন...">
+                <i class="fas fa-search search-icon"></i>
+            </div>
+            
+            <div class="toc-container" id="tocContainer">
+                <!-- TOC will be generated dynamically -->
+            </div>
+        </aside>
+        
+        <!-- Content Area -->
+        <main class="content-area" id="contentArea">
+            <header style="text-align: center; padding: 40px 0; border-bottom: 2px solid var(--border-color); margin-bottom: 40px;">
+                <div style="font-size: 3rem; margin-bottom: 10px;">📘</div>
+                <h1 style="font-size: 2.5rem; margin-bottom: 15px; color: var(--accent-color);">রাষ্ট্রকে দেখা তিন চোখে</h1>
+                <p style="font-size: 1.3rem; color: #666;">(People • Officer • Politician)</p>
+                <p style="font-size: 1.1rem; margin-top: 10px; color: #888;">একটি রাষ্ট্রের গল্প—ভিতর থেকে, মাঝখান থেকে, আর উপরে থেকে</p>
+            </header>
+            
+            <div id="bookContent">
+                <!-- Content will be loaded here -->
+            </div>
+        </main>
+    </div>
+    
+    <!-- Audio Player -->
+    <div class="audio-player" id="audioPlayer">
+        <div class="audio-controls">
+            <button class="audio-btn" id="playPauseBtn">
+                <i class="fas fa-play"></i>
+            </button>
+            <button class="audio-btn" id="stopBtn">
+                <i class="fas fa-stop"></i>
+            </button>
+        </div>
+        <div class="speed-control">
+            <label style="font-size: 14px;">গতি:</label>
+            <select id="playbackSpeed">
+                <option value="0.5">০.৫×</option>
+                <option value="0.75">০.৭৫×</option>
+                <option value="1" selected>১×</option>
+                <option value="1.25">১.২৫×</option>
+                <option value="1.5">১.৫×</option>
+            </select>
+        </div>
+        <span id="currentChapter" style="font-size: 14px; max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></span>
+    </div>
+    
+    <!-- Reading Stats -->
+    <div class="reading-stats" id="readingStats">
+        <h4>পড়ার পরিসংখ্যান</h4>
+        <div class="stat-item">
+            <span>পড়া হয়েছে:</span>
+            <span id="progressPercent">০%</span>
+        </div>
+        <div class="stat-item">
+            <span>পড়ার সময়:</span>
+            <span id="readingTime">০ মিনিট</span>
+        </div>
+        <div class="stat-item">
+            <span>বর্তমান অধ্যায়:</span>
+            <span id="currentChapterNum">-</span>
+        </div>
+    </div>
+    
+    <!-- FAB Buttons -->
+    <div class="fab-container">
+        <button class="fab" id="scrollTop" title="উপরে যান">
+            <i class="fas fa-arrow-up"></i>
+        </button>
+        <button class="fab" id="addBookmark" title="বুকমার্ক যোগ করুন">
+            <i class="fas fa-bookmark"></i>
+        </button>
+        <button class="fab" id="addNote" title="নোট যোগ করুন">
+            <i class="fas fa-pencil-alt"></i>
+        </button>
+    </div>
+    
+    <!-- Bookmarks Modal -->
+    <div class="modal" id="bookmarksModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>আমার বুকমার্ক</h2>
+                <button class="close-modal" onclick="closeModal('bookmarksModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div id="bookmarksList">
+                <!-- Bookmarks will be listed here -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Notes Modal -->
+    <div class="modal" id="notesModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>আমার নোট</h2>
+                <button class="close-modal" onclick="closeModal('notesModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div id="notesList">
+                <!-- Notes will be listed here -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Loading -->
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+    </div>
+
+    <script>
+        // Book Content Data
+        const bookData = {
+            parts: [
+                {
+                    id: 'part-a',
+                    title: 'পার্ট এ — মানুষের চোখে',
+                    icon: 'eye',
+                    chapters: [
+                        { id: 'chapter-1', title: 'ভোরের লাইনে দাঁড়ানো মানুষ', icon: 'sun' },
+                        { id: 'chapter-2', title: 'ভোটের দিন, ভয় আর অপেক্ষা', icon: 'vote-yea' },
+                        { id: 'chapter-3', title: 'বাজারে দাম, ঘরে নীরবতা', icon: 'shopping-cart' },
+                        { id: 'chapter-4', title: 'কৃষকের খাতা', icon: 'seedling' },
+                        { id: 'chapter-5', title: 'শহরের তরুণের প্রশ্ন', icon: 'user-graduate' },
+                        { id: 'chapter-6', title: 'নারীর নিরাপত্তা ও রাষ্ট্র', icon: 'female' },
+                        { id: 'chapter-7', title: 'স্কুলঘরের ভাঙা বেঞ্চ', icon: 'school' },
+                        { id: 'chapter-8', title: 'হাসপাতালের বারান্দা', icon: 'hospital' },
+                        { id: 'chapter-9', title: 'আমরা কি শুধু সংখ্যা?', icon: 'hashtag' },
+                        { id: 'chapter-10', title: 'মানুষ রাষ্ট্রকে কী চায়', icon: 'heart' }
+                    ]
+                },
+                {
+                    id: 'part-b',
+                    title: 'পার্ট বি — কর্মকর্তার চোখে',
+                    icon: 'briefcase',
+                    chapters: [
+                        { id: 'chapter-11', title: 'ফাইলের ভেতরের দেশ', icon: 'file-alt' },
+                        { id: 'chapter-12', title: 'মাঠ আর মন্ত্রণালয়ের দূরত্ব', icon: 'road' },
+                        { id: 'chapter-13', title: 'নিয়ম বনাম বাস্তবতা', icon: 'balance-scale' },
+                        { id: 'chapter-14', title: 'আদেশ আসে, প্রশ্ন থাকে', icon: 'clipboard-list' },
+                        { id: 'chapter-15', title: 'নিরপেক্ষ থাকার লড়াই', icon: 'balance-scale-right' },
+                        { id: 'chapter-16', title: 'ক্ষমতা বদলায়, ফাইল থাকে', icon: 'exchange-alt' },
+                        { id: 'chapter-17', title: 'একজন কর্মকর্তার নীরব স্বীকারোক্তি', icon: 'user-secret' }
+                    ]
+                },
+                {
+                    id: 'part-c',
+                    title: 'পার্ট সি — রাজনীতিবিদের চোখে',
+                    icon: 'landmark',
+                    chapters: [
+                        { id: 'chapter-19', title: 'সিদ্ধান্তের টেবিল', icon: 'gavel' },
+                        { id: 'chapter-20', title: 'জনতা, জনমত ও দায়', icon: 'users' },
+                        { id: 'chapter-21', title: 'ক্ষমতার লোভ বনাম রাষ্ট্রের প্রয়োজন', icon: 'crown' },
+                        { id: 'chapter-22', title: 'ইতিহাস কী শেখায়', icon: 'history' },
+                        { id: 'chapter-23', title: 'ভুল, অনুশোচনা ও শিক্ষা', icon: 'exclamation-triangle' },
+                        { id: 'chapter-24', title: 'সংস্কার কেন জরুরি', icon: 'tools' },
+                        { id: 'chapter-25', title: 'রাষ্ট্র বনাম দল', icon: 'balance-scale-left' },
+                        { id: 'chapter-26', title: 'একটি নতুন শুরুর প্রস্তাব', icon: 'lightbulb' }
+                    ]
+                }
+            ],
+            content: {
+                'chapter-1': {
+                    title: 'ভোরের লাইনে দাঁড়ানো মানুষ',
+                    text: `
+                        <p>ভোর তখনো পুরো জাগেনি। আকাশে হালকা কুয়াশা, মাটিতে শিশির, আর মানুষের চোখে একধরনের অচেনা অপেক্ষা।</p>
+                        <p>স্কুলের সামনে লম্বা লাইন। কেউ চুপচাপ দাঁড়িয়ে, কেউ কথা বলছে নিচু গলায়। লাইনের শুরুটা দেখা যায় না, শেষটাও না। যেন এটা শুধু মানুষের লাইন নয়—এটা সময়ের লাইন।</p>
+                        <p>রহিম উদ্দিন দাঁড়িয়ে আছে লাইনের মাঝখানে। বয়স পঞ্চাশ ছুঁইছুঁই। হাতে জাতীয় পরিচয়পত্রটা এমনভাবে ধরা, যেন হারিয়ে গেলে আবার নিজের অস্তিত্ব হারাবে।</p>
+                        <div class="chapter-highlight">
+                            সে মনে মনে হিসাব করে— শেষ কবে সে এভাবে লাইনে দাঁড়িয়েছিল? চাল কিনতে দাঁড়িয়েছিল। হাসপাতালে টিকিট কাটতে দাঁড়িয়েছিল। কিন্তু আজকের লাইনটা আলাদা। আজ সে দাঁড়িয়েছে রাষ্ট্রের সামনে।
+                        </div>
+                        <p>পেছনে দাঁড়ানো তরুণ ছেলেটা ফিসফিস করে বলে, — "কাকা, কিছু হবে তো?" রহিম তাকায় না। সামনে তাকিয়েই বলে, — "হবে না জানি, তবু দাঁড়াই।" এই দাঁড়িয়ে থাকাটাই যেন তার শেষ ভরসা।</p>
+                    `
+                },
+                'chapter-2': {
+                    title: 'ভোটের দিন, ভয় আর অপেক্ষা',
+                    text: `
+                        <p>ভোটের দিন মানেই উৎসব ছিল একসময়। রঙিন পোস্টার, হৈচৈ, মানুষে মানুষে কথা। এখন ভোটের দিন মানে—নীরবতা।</p>
+                        <p>রহিমের স্ত্রী আয়েশা ঘর থেকে বের হওয়ার আগে একবার বলেছিল, — "ঝামেলা হবে না তো?" এই প্রশ্নে শুধু ভয় নেই, আছে ক্লান্তি। বারবার একই প্রশ্ন করতে করতে মানুষ একসময় প্রশ্ন করাও ছেড়ে দেয়।</p>
+                        <p>কেন্দ্রের ভেতরে ঢোকার সময় রহিম দেখে দেয়ালের দিকে চোখ রাখা কয়েকজন যুবক। তারা কথা বলে না, শুধু তাকিয়ে থাকে। তাকানোটা এমন, যেন তারা মানুষ গুনছে, ভোট নয়।</p>
+                        <p>রহিম ব্যালট পেপার হাতে নিয়ে হঠাৎ থমকে যায়। একটা কাগজ— কিন্তু এর ভেতরে কি সত্যিই তার কথা আছে?</p>
+                        <div class="chapter-highlight">
+                            সে টিক দেয়। কাগজ ভাঁজ করে বাক্সে ফেলে। বের হয়ে আসার সময় তার বুকের ভেতর একটা প্রশ্ন ঘুরপাক খায়— "আমি কি কিছু বদলালাম, নাকি শুধু নিয়ম পালন করলাম?"
+                        </div>
+                    `
+                },
+                'chapter-3': {
+                    title: 'বাজারে দাম, ঘরে নীরবতা',
+                    text: `
+                        <p>বাজারটা আগের মতোই আছে। কিন্তু মানুষের হাঁটার ভঙ্গি বদলে গেছে।</p>
+                        <p>রহিম বাজারে ঢুকে প্রথমেই চালের বস্তার দিকে তাকায়। দাম শুনে মুখে কিছু বলে না। বলার অভ্যাস অনেক আগেই চলে গেছে।</p>
+                        <p>সবজি বিক্রেতা নিজেই বলে ওঠে, — "ভাই, আমরাও কী করব বলেন?"</p>
+                        <div class="chapter-highlight">
+                            এই "আমরাও" শব্দটা রহিমকে থামিয়ে দেয়। সে বোঝে—এখানে কেউ একা নয়।
+                        </div>
+                        <p>ঘরে ফিরে আয়েশা জিজ্ঞেস করে, — "সব আনছো?" রহিম মাথা নাড়ে। চুপচাপ বসে থাকে।</p>
+                        <p>এই ঘরের নীরবতা সবচেয়ে ভারী। কোনো চিৎকার নেই, কোনো অভিযোগ নেই—তবু দেয়ালগুলো যেন সব শুনছে। রহিম ভাবে, রাষ্ট্র কি জানে এই নীরবতার দাম কত?</p>
+                    `
+                },
+                // Add more chapters as needed...
+            }
+        };
+
+        // App State
+        const appState = {
+            currentChapter: null,
+            bookmarks: [],
+            notes: [],
+            readingTime: 0,
+            fontSize: 1,
+            theme: 'light',
+            isAudioPlaying: false,
+            speechSynthesis: null,
+            utterance: null
+        };
+
+        // Initialize App
+        function initApp() {
+            loadBookmarks();
+            loadNotes();
+            generateTOC();
+            loadContent();
+            setupEventListeners();
+            startReadingTimer();
+            loadUserPreferences();
+        }
+
+        // Generate TOC
+        function generateTOC() {
+            const tocContainer = document.getElementById('tocContainer');
+            let tocHTML = '';
+
+            bookData.parts.forEach(part => {
+                tocHTML += `
+                    <div class="toc-part" id="toc-${part.id}">
+                        <div class="part-title" data-part="${part.id}">
+                            <span><i class="fas fa-${part.icon}"></i> ${part.title}</span>
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                        <div class="chapters-list" id="chapters-${part.id}">
+                `;
+
+                part.chapters.forEach(chapter => {
+                    tocHTML += `
+                        <div class="toc-chapter" data-chapter="${chapter.id}">
+                            <i class="fas fa-${chapter.icon}"></i>
+                            ${chapter.title}
+                        </div>
+                    `;
+                });
+
+                tocHTML += `
+                        </div>
+                    </div>
+                `;
+            });
+
+            tocContainer.innerHTML = tocHTML;
+        }
+
+        // Load Content
+        function loadContent() {
+            const bookContent = document.getElementById('bookContent');
+            let contentHTML = '';
+
+            bookData.parts.forEach(part => {
+                contentHTML += `<section id="${part.id}" class="part">`;
+                contentHTML += `<h2><i class="fas fa-${part.icon}"></i> ${part.title}</h2>`;
+
+                part.chapters.forEach(chapter => {
+                    const chapterContent = bookData.content[chapter.id];
+                    if (chapterContent) {
+                        contentHTML += `
+                            <div class="chapter" id="${chapter.id}">
+                                <button class="bookmark-btn" onclick="toggleBookmark('${chapter.id}')">
+                                    <i class="far fa-bookmark"></i>
+                                </button>
+                                <h3><i class="fas fa-${chapter.icon}"></i> ${chapterContent.title}</h3>
+                                ${chapterContent.text}
+                            </div>
+                        `;
+                    }
+                });
+
+                contentHTML += `</section>`;
+            });
+
+            bookContent.innerHTML = contentHTML;
+            updateBookmarkIcons();
+        }
+
+        // Setup Event Listeners
+        function setupEventListeners() {
+            // Sidebar Toggle
+            document.getElementById('toggleSidebar').addEventListener('click', () => {
+                document.getElementById('sidebar').classList.toggle('hidden');
+                document.getElementById('contentArea').classList.toggle('full-width');
+            });
+
+            // Theme Controls
+            document.getElementById('lightMode').addEventListener('click', () => setTheme('light'));
+            document.getElementById('darkMode').addEventListener('click', () => setTheme('dark'));
+            document.getElementById('sepiaMode').addEventListener('click', () => setTheme('sepia'));
+
+            // Font Size Controls
+            document.getElementById('fontSize').addEventListener('change', (e) => {
+                setFontSize(parseFloat(e.target.value));
+            });
+
+            document.getElementById('decreaseFont').addEventListener('click', () => {
+                const select = document.getElementById('fontSize');
+                const currentIndex = select.selectedIndex;
+                if (currentIndex > 0) {
+                    select.selectedIndex = currentIndex - 1;
+                    setFontSize(parseFloat(select.value));
+                }
+            });
+
+            document.getElementById('increaseFont').addEventListener('click', () => {
+                const select = document.getElementById('fontSize');
+                const currentIndex = select.selectedIndex;
+                if (currentIndex < select.options.length - 1) {
+                    select.selectedIndex = currentIndex + 1;
+                    setFontSize(parseFloat(select.value));
+                }
+            });
+
+            // Audio Controls
+            document.getElementById('toggleAudio').addEventListener('click', toggleAudioPlayer);
+            document.getElementById('playPauseBtn').addEventListener('click', togglePlayPause);
+            document.getElementById('stopBtn').addEventListener('click', stopAudio);
+            document.getElementById('playbackSpeed').addEventListener('change', (e) => {
+                if (appState.utterance) {
+                    appState.utterance.rate = parseFloat(e.target.value);
+                }
+            });
+
+            // TOC Navigation
+            document.querySelectorAll('.part-title').forEach(title => {
+                title.addEventListener('click', function() {
+                    const partId = this.getAttribute('data-part');
+                    const chaptersList = document.getElementById(`chapters-${partId}`);
+                    chaptersList.classList.toggle('show');
+                    this.querySelector('.fa-chevron-right').style.transform = 
+                        chaptersList.classList.contains('show') ? 'rotate(90deg)' : 'rotate(0deg)';
+                });
+            });
+
+            document.querySelectorAll('.toc-chapter').forEach(chapter => {
+                chapter.addEventListener('click', function() {
+                    const chapterId = this.getAttribute('data-chapter');
+                    navigateToChapter(chapterId);
+                });
+            });
+
+            // FAB Buttons
+            document.getElementById('scrollTop').addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+
+            document.getElementById('addBookmark').addEventListener('click', () => {
+                if (appState.currentChapter) {
+                    toggleBookmark(appState.currentChapter);
+                }
+            });
+
+            document.getElementById('addNote').addEventListener('click', () => {
+                if (appState.currentChapter) {
+                    addNote(appState.currentChapter);
+                }
+            });
+
+            // Modal Controls
+            document.getElementById('showBookmarks').addEventListener('click', () => {
+                showBookmarks();
+            });
+
+            document.getElementById('showNotes').addEventListener('click', () => {
+                showNotes();
+            });
+
+            // Search
+            document.getElementById('searchInput').addEventListener('input', (e) => {
+                searchContent(e.target.value);
+            });
+
+            // Scroll Progress
+            window.addEventListener('scroll', updateProgress);
+
+            // Expand first part by default
+            const firstPart = document.querySelector('.part-title');
+            if (firstPart) {
+                firstPart.click();
+            }
+        }
+
+        // Navigation
+        function navigateToChapter(chapterId) {
+            const element = document.getElementById(chapterId);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                
+                // Update active state
+                document.querySelectorAll('.toc-chapter').forEach(ch => ch.classList.remove('active'));
+                document.querySelector(`[data-chapter="${chapterId}"]`).classList.add('active');
+                
+                appState.currentChapter = chapterId;
+                updateCurrentChapterDisplay();
+                
+                // Close sidebar on mobile
+                if (window.innerWidth <= 768) {
+                    document.getElementById('sidebar').classList.add('hidden');
+                }
+            }
+        }
+
+        // Theme Management
+        function setTheme(theme) {
+            document.body.className = '';
+            if (theme === 'dark') {
+                document.body.classList.add('dark-mode');
+            } else if (theme === 'sepia') {
+                document.body.classList.add('sepia-mode');
+            }
+            appState.theme = theme;
+            saveUserPreferences();
+        }
+
+        // Font Size
+        function setFontSize(size) {
+            document.getElementById('bookContent').style.fontSize = `${size}rem`;
+            appState.fontSize = size;
+            saveUserPreferences();
+        }
+
+        // Audio Functions
+        function toggleAudioPlayer() {
+            const player = document.getElementById('audioPlayer');
+            player.classList.toggle('active');
+            
+            if (player.classList.contains('active') && !appState.isAudioPlaying) {
+                startReading();
+            }
+        }
+
+        function startReading() {
+            if (!appState.currentChapter) {
+                // Start from first chapter
+                const firstChapter = bookData.parts[0].chapters[0].id;
+                navigateToChapter(firstChapter);
+            }
+
+            const chapterElement = document.getElementById(appState.currentChapter);
+            if (chapterElement) {
+                const text = chapterElement.innerText;
+                
+                if ('speechSynthesis' in window) {
+                    // Stop any ongoing speech
+                    window.speechSynthesis.cancel();
+                    
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    utterance.lang = 'bn-BD'; // Bengali language
+                    utterance.rate = parseFloat(document.getElementById('playbackSpeed').value);
+                    
+                    utterance.onend = () => {
+                        appState.isAudioPlaying = false;
+                        document.getElementById('playPauseBtn').innerHTML = '<i class="fas fa-play"></i>';
+                    };
+                    
+                    window.speechSynthesis.speak(utterance);
+                    appState.utterance = utterance;
+                    appState.isAudioPlaying = true;
+                    document.getElementById('playPauseBtn').innerHTML = '<i class="fas fa-pause"></i>';
+                } else {
+                    alert('দুঃখিত, আপনার ব্রাউজার টেক্সট-টু-স্পিচ সমর্থন করে না।');
+                }
+            }
+        }
+
+        function togglePlayPause() {
+            if (appState.isAudioPlaying) {
+                window.speechSynthesis.pause();
+                appState.isAudioPlaying = false;
+                document.getElementById('playPauseBtn').innerHTML = '<i class="fas fa-play"></i>';
+            } else {
+                if (window.speechSynthesis.paused) {
+                    window.speechSynthesis.resume();
+                } else {
+                    startReading();
+                }
+                appState.isAudioPlaying = true;
+                document.getElementById('playPauseBtn').innerHTML = '<i class="fas fa-pause"></i>';
+            }
+        }
+
+        function stopAudio() {
+            window.speechSynthesis.cancel();
+            appState.isAudioPlaying = false;
+            document.getElementById('playPauseBtn').innerHTML = '<i class="fas fa-play"></i>';
+        }
+
+        // Bookmarks
+        function toggleBookmark(chapterId) {
+            const index = appState.bookmarks.findIndex(b => b.chapterId === chapterId);
+            
+            if (index === -1) {
+                const chapter = findChapter(chapterId);
+                appState.bookmarks.push({
+                    chapterId,
+                    title: chapter.title,
+                    timestamp: new Date().toISOString()
+                });
+            } else {
+                appState.bookmarks.splice(index, 1);
+            }
+            
+            saveBookmarks();
+            updateBookmarkIcons();
+        }
+
+        function updateBookmarkIcons() {
+            document.querySelectorAll('.bookmark-btn').forEach(btn => {
+                const chapterId = btn.onclick.toString().match(/'([^']+)'/)[1];
+                const isBookmarked = appState.bookmarks.some(b => b.chapterId === chapterId);
+                
+                if (isBookmarked) {
+                    btn.innerHTML = '<i class="fas fa-bookmark"></i>';
+                    btn.classList.add('bookmarked');
+                } else {
+                    btn.innerHTML = '<i class="far fa-bookmark"></i>';
+                    btn.classList.remove('bookmarked');
+                }
+            });
+        }
+
+        function showBookmarks() {
+            const modal = document.getElementById('bookmarksModal');
+            const list = document.getElementById('bookmarksList');
+            
+            if (appState.bookmarks.length === 0) {
+                list.innerHTML = '<p>কোনো বুকমার্ক নেই।</p>';
+            } else {
+                list.innerHTML = appState.bookmarks.map(bookmark => `
+                    <div class="bookmark-item" onclick="navigateToChapter('${bookmark.chapterId}'); closeModal('bookmarksModal')">
+                        <h4>${bookmark.title}</h4>
+                        <small>${new Date(bookmark.timestamp).toLocaleString('bn-BD')}</small>
+                    </div>
+                `).join('');
+            }
+            
+            modal.classList.add('active');
+        }
+
+        // Notes
+        function addNote(chapterId) {
+            const note = prompt('নোট লিখুন:');
+            if (note && note.trim()) {
+                const chapter = findChapter(chapterId);
+                appState.notes.push({
+                    chapterId,
+                    chapterTitle: chapter.title,
+                    note: note.trim(),
+                    timestamp: new Date().toISOString()
+                });
+                saveNotes();
+                alert('নোট সংরক্ষিত হয়েছে!');
+            }
+        }
+
+        function showNotes() {
+            const modal = document.getElementById('notesModal');
+            const list = document.getElementById('notesList');
+            
+            if (appState.notes.length === 0) {
+                list.innerHTML = '<p>কোনো নোট নেই।</p>';
+            } else {
+                list.innerHTML = appState.notes.map((note, index) => `
+                    <div class="bookmark-item">
+                        <h4>${note.chapterTitle}</h4>
+                        <p>${note.note}</p>
+                        <small>${new Date(note.timestamp).toLocaleString('bn-BD')}</small>
+                        <button onclick="deleteNote(${index})" style="margin-top: 10px; padding: 5px 10px; background: #c62828; color: white; border: none; border-radius: 3px; cursor: pointer;">
+                            মুছুন
+                        </button>
+                    </div>
+                `).join('');
+            }
+            
+            modal.classList.add('active');
+        }
+
+        function deleteNote(index) {
+            if (confirm('এই নোটটি মুছতে চান?')) {
+                appState.notes.splice(index, 1);
+                saveNotes();
+                showNotes();
+            }
+        }
+
+        // Search
+        function searchContent(query) {
+            // Remove previous highlights
+            document.querySelectorAll('.highlight').forEach(el => {
+                el.outerHTML = el.innerHTML;
+            });
+            
+            if (!query.trim()) return;
+            
+            const bookContent = document.getElementById('bookContent');
+            const text = bookContent.innerHTML;
+            const regex = new RegExp(`(${query})`, 'gi');
+            const highlighted = text.replace(regex, '<span class="highlight">$1</span>');
+            bookContent.innerHTML = highlighted;
+        }
+
+        // Progress Tracking
+        function updateProgress() {
+            const windowHeight = window.innerHeight;
+            const documentHeight = document.documentElement.scrollHeight - windowHeight;
+            const scrolled = window.scrollY;
+            const progress = (scrolled / documentHeight) * 100;
+            
+            document.getElementById('progressBar').style.width = `${progress}%`;
+            document.getElementById('progressPercent').textContent = `${Math.round(progress)}%`;
+            
+            // Update current chapter
+            const chapters = document.querySelectorAll('.chapter');
+            chapters.forEach(chapter => {
+                const rect = chapter.getBoundingClientRect();
+                if (rect.top >= 0 && rect.top <= windowHeight / 2) {
+                    appState.currentChapter = chapter.id;
+                    updateCurrentChapterDisplay();
+                }
+            });
+        }
+
+        function updateCurrentChapterDisplay() {
+            if (appState.currentChapter) {
+                const chapter = findChapter(appState.currentChapter);
+                if (chapter) {
+                    document.getElementById('currentChapterNum').textContent = chapter.title;
+                    document.getElementById('currentChapter').textContent = chapter.title;
+                }
+            }
+        }
+
+        // Reading Timer
+        function startReadingTimer() {
+            setInterval(() => {
+                appState.readingTime++;
+                const minutes = Math.floor(appState.readingTime / 60);
+                document.getElementById('readingTime').textContent = `${minutes} মিনিট`;
+            }, 60000); // Update every minute
+        }
+
+        // Storage Functions
+        function saveBookmarks() {
+            localStorage.setItem('ebook_bookmarks', JSON.stringify(appState.bookmarks));
+        }
+
+        function loadBookmarks() {
+            const saved = localStorage.getItem('ebook_bookmarks');
+            if (saved) {
+                appState.bookmarks = JSON.parse(saved);
+            }
+        }
+
+        function saveNotes() {
+            localStorage.setItem('ebook_notes', JSON.stringify(appState.notes));
+        }
+
+        function loadNotes() {
+            const saved = localStorage.getItem('ebook_notes');
+            if (saved) {
+                appState.notes = JSON.parse(saved);
+            }
+        }
+
+        function saveUserPreferences() {
+            const prefs = {
+                theme: appState.theme,
+                fontSize: appState.fontSize
+            };
+            localStorage.setItem('ebook_prefs', JSON.stringify(prefs));
+        }
+
+        function loadUserPreferences() {
+            const saved = localStorage.getItem('ebook_prefs');
+            if (saved) {
+                const prefs = JSON.parse(saved);
+                setTheme(prefs.theme);
+                setFontSize(prefs.fontSize);
+                document.getElementById('fontSize').value = prefs.fontSize;
+            }
+        }
+
+        // Helper Functions
+        function findChapter(chapterId) {
+            for (const part of bookData.parts) {
+                const chapter = part.chapters.find(ch => ch.id === chapterId);
+                if (chapter) {
+                    return chapter;
+                }
+            }
+            return null;
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>

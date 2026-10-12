@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>রাষ্ট্রকে দেখা তিন চোখে - সম্পূর্ণ ই-বুক</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary-color: #1b5e20;
+            --secondary-color: #2e7d32;
+            --accent-color: #ef5350;
+            --text-color: #333;
+            --bg-color: #f9f7f2;
+            --sidebar-bg: linear-gradient(180deg, #1b5e20, #2e7d32);
+            --card-bg: white;
+            --highlight-bg: #e8f4fc;
+            --font-size: 1.1rem;
+            --line-height: 1.8;
+        }
+        
+        [data-theme="dark"] {
+            --text-color: #e0e0e0;
+            --bg-color: #1a1a1a;
+            --card-bg: #2d2d2d;
+            --highlight-bg: #3a3a3a;
+        }
+        
+        [data-theme="sepia"] {
+            --text-color: #5b4636;
+            --bg-color: #f4ecd8;
+            --card-bg: #f9f6ed;
+            --highlight-bg: #e8dcc4;
+        }
+        
+        body {
+            font-family: 'Noto Sans Bengali', 'Kalpurush', Arial, sans-serif;
+            line-height: var(--line-height);
+            color: var(--text-color);
+            background: var(--bg-color);
+            transition: all 0.3s ease;
+        }
+        
+        /* Header Controls */
+        .header-controls {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--card-bg);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 2000;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .control-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .control-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+        
+        .control-btn:hover {
+            background: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+        
+        .control-btn.active {
+            background: var(--accent-color);
+        }
+        
+        /* Audio Player */
+        .audio-player {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--card-bg);
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            padding: 15px 20px;
+            z-index: 2000;
+            display: none;
+        }
+        
+        .audio-player.active {
+            display: block;
+        }
+        
+        .audio-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .audio-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        
+        .audio-btn:hover {
+            background: var(--accent-color);
+            transform: scale(1.1);
+        }
+        
+        .audio-progress {
+            flex: 1;
+            height: 6px;
+            background: #ddd;
+            border-radius: 3px;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .audio-progress-fill {
+            height: 100%;
+            background: var(--primary-color);
+            border-radius: 3px;
+            width: 0%;
+            transition: width 0.1s ease;
+        }
+        
+        .audio-info {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+        
+        .speed-control {
+            padding: 5px 10px;
+            border-radius: 4px;
+            background: var(--highlight-bg);
+            cursor: pointer;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            width: 320px;
+            background: var(--sidebar-bg);
+            color: white;
+            position: fixed;
+            left: 0;
+            top: 60px;
+            height: calc(100vh - 60px);
+            overflow-y: auto;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .sidebar.hidden {
+            transform: translateX(-100%);
+        }
+        
+        .sidebar-header {
+            padding: 20px;
+            background: rgba(198, 40, 40, 0.9);
+            border-bottom: 3px solid #c62828;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .sidebar-header h2 {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+        
+        /* Table of Contents */
+        .toc-container {
+            padding: 20px 0;
+        }
+        
+        .toc-part {
+            margin-bottom: 15px;
+            border-left: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .toc-part:hover {
+            border-left-color: var(--accent-color);
+            background: rgba(255,255,255,0.05);
+        }
+        
+        .toc-part.active {
+            border-left-color: var(--accent-color);
+            background: rgba(255,255,255,0.1);
+        }
+        
+        .part-title {
+            padding: 12px 20px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .part-title:hover {
+            background: rgba(255,255,255,0.1);
+        }
+        
+        .chapters-list {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            background: rgba(0,0,0,0.1);
+        }
+        
+        .chapters-list.show {
+            max-height: 600px;
+        }
+        
+        .toc-chapter {
+            padding: 10px 20px 10px 40px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 2px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .toc-chapter:hover {
+            background: rgba(255,255,255,0.05);
+            border-left-color: var(--accent-color);
+        }
+        
+        .toc-chapter.active {
+            background: rgba(239, 83, 80, 0.2);
+            border-left-color: var(--accent-color);
+            font-weight: bold;
+        }
+        
+        .toc-chapter.completed {
+            opacity: 0.7;
+        }
+        
+        .toc-chapter.completed::after {
+            content: "✓";
+            margin-left: auto;
+            color: #4caf50;
+        }
+        
+        /* Main Content */
+        .main-content {
+            margin-left: 320px;
+            margin-top: 60px;
+            margin-bottom: 80px;
+            transition: margin-left 0.3s ease;
+        }
+        
+        .main-content.expanded {
+            margin-left: 0;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+            min-height: calc(100vh - 140px);
+        }
+        
+        .content {
+            padding: 40px;
+            font-size: var(--font-size);
+        }
+        
+        .part {
+            margin-bottom: 50px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .part:last-child {
+            border-bottom: none;
+        }
+        
+        h1, h2, h3 {
+            color: var(--text-color);
+            margin-bottom: 20px;
+        }
+        
+        h2 {
+            font-size: 2rem;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+            display: inline-block;
+        }
+        
+        h3 {
+            font-size: 1.6rem;
+            color: #2980b9;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .chapter {
+            margin-bottom: 40px;
+            scroll-margin-top: 80px;
+        }
+        
+        p {
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+        
+        .highlight {
+            background: var(--highlight-bg);
+            padding: 20px;
+            border-left: 4px solid #3498db;
+            margin: 25px 0;
+            font-style: italic;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        /* Reading Aids */
+        .sentence {
+            transition: background-color 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .sentence:hover {
+            background: var(--highlight-bg);
+        }
+        
+        .sentence.reading {
+            background: #fff9c4;
+            font-weight: 500;
+        }
+        
+        .sentence.bookmarked {
+            background: #c8e6c9;
+            border-left: 3px solid #4caf50;
+            padding-left: 10px;
+        }
+        
+        /* Floating Buttons */
+        .floating-btns {
+            position: fixed;
+            right: 20px;
+            bottom: 100px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 1500;
+        }
+        
+        .floating-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .floating-btn:hover {
+            background: var(--accent-color);
+            transform: scale(1.1);
+        }
+        
+        /* Progress Bar */
+        .progress-container {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: #e0e0e0;
+            z-index: 1999;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        /* Bookmarks Panel */
+        .bookmarks-panel {
+            position: fixed;
+            right: -350px;
+            top: 60px;
+            width: 350px;
+            height: calc(100vh - 60px);
+            background: var(--card-bg);
+            box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+            z-index: 1500;
+            transition: right 0.3s ease;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        
+        .bookmarks-panel.active {
+            right: 0;
+        }
+        
+        .bookmark-item {
+            padding: 15px;
+            margin-bottom: 10px;
+            background: var(--highlight-bg);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .bookmark-item:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        /* Font Size Controls */
+        .font-size-display {
+            padding: 5px 15px;
+            background: var(--highlight-bg);
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .header-controls {
+                padding: 8px 10px;
+            }
+            
+            .control-group {
+                gap: 5px;
+            }
+            
+            .control-btn {
+                padding: 6px 12px;
+                font-size: 0.85rem;
+            }
+        }
+        
+        /* Theme Selector */
+        .theme-selector {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .theme-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .theme-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .theme-btn.active {
+            border-color: var(--accent-color);
+        }
+        
+        .theme-light { background: #fff; }
+        .theme-dark { background: #333; }
+        .theme-sepia { background: #f4ecd8; }
+    </style>
+</head>
+<body data-theme="light">
+    <!-- Header Controls -->
+    <div class="header-controls">
+        <div class="control-group">
+            <button class="control-btn" id="toggleSidebar">
+                <i class="fas fa-bars"></i>
+                <span class="btn-text">সূচিপত্র</span>
+            </button>
+            
+            <button class="control-btn" id="toggleAudio">
+                <i class="fas fa-headphones"></i>
+                <span class="btn-text">শুনুন</span>
+            </button>
+            
+            <button class="control-btn" id="toggleBookmarks">
+                <i class="fas fa-bookmark"></i>
+                <span class="btn-text">বুকমার্ক</span>
+            </button>
+        </div>
+        
+        <div class="control-group">
+            <div class="theme-selector">
+                <button class="theme-btn theme-light active" data-theme="light" title="হালকা থিম"></button>
+                <button class="theme-btn theme-dark" data-theme="dark" title="গাঢ় থিম"></button>
+                <button class="theme-btn theme-sepia" data-theme="sepia" title="সেপিয়া থিম"></button>
+            </div>
+            
+            <button class="control-btn" id="decreaseFont">
+                <i class="fas fa-minus"></i>
+            </button>
+            <span class="font-size-display" id="fontSizeDisplay">১.১</span>
+            <button class="control-btn" id="increaseFont">
+                <i class="fas fa-plus"></i>
+            </button>
+        </div>
+    </div>
+    
+    <!-- Progress Bar -->
+    <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+    
+    <!-- Audio Player -->
+    <div class="audio-player" id="audioPlayer">
+        <div class="audio-controls">
+            <button class="audio-btn" id="audioPrevSentence">
+                <i class="fas fa-step-backward"></i>
+            </button>
+            <button class="audio-btn" id="audioPlayPause">
+                <i class="fas fa-play"></i>
+            </button>
+            <button class="audio-btn" id="audioNextSentence">
+                <i class="fas fa-step-forward"></i>
+            </button>
+            <button class="audio-btn" id="audioStop">
+                <i class="fas fa-stop"></i>
+            </button>
+            
+            <div class="audio-progress" id="audioProgressBar">
+                <div class="audio-progress-fill" id="audioProgressFill"></div>
+            </div>
+            
+            <div class="audio-info">
+                <span id="currentSentence">০/০</span>
+                <select class="speed-control" id="speedControl">
+                    <option value="0.5">০.৫x</option>
+                    <option value="0.75">০.৭৫x</option>
+                    <option value="1" selected>১x</option>
+                    <option value="1.25">১.২৫x</option>
+                    <option value="1.5">১.৫x</option>
+                    <option value="2">২x</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2><i class="fas fa-book-open"></i> সূচিপত্র</h2>
+            <p>রাষ্ট্রকে দেখা তিন চোখে</p>
+        </div>
+        
+        <div class="toc-container" id="tocContainer">
+            <!-- Will be populated by JavaScript -->
+        </div>
+    </aside>
+    
+    <!-- Bookmarks Panel -->
+    <div class="bookmarks-panel" id="bookmarksPanel">
+        <h3><i class="fas fa-bookmark"></i> আপনার বুকমার্ক</h3>
+        <div id="bookmarksList">
+            <p style="text-align: center; padding: 20px; opacity: 0.6;">
+                <i class="fas fa-bookmark" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
+                এখনো কোনো বুকমার্ক নেই
+            </p>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <main class="main-content" id="mainContent">
+        <div class="container">
+            <div class="content" id="bookContent">
+                <!-- Book content will be loaded here -->
+            </div>
+        </div>
+    </main>
+    
+    <!-- Floating Buttons -->
+    <div class="floating-btns">
+        <button class="floating-btn" id="scrollTop" title="উপরে যান">
+            <i class="fas fa-arrow-up"></i>
+        </button>
+        <button class="floating-btn" id="toggleNotes" title="নোট যোগ করুন">
+            <i class="fas fa-sticky-note"></i>
+        </button>
+    </div>
+    
+    <script>
+        // Book Content
+        const bookContent = {
+            parts: [
+                {
+                    id: 'part-a',
+                    title: 'পার্ট এ — মানুষের চোখে',
+                    chapters: [
+                        { id: 'chapter-1', title: 'ভোরের লাইনে দাঁড়ানো মানুষ', icon: 'fa-sun' },
+                        { id: 'chapter-2', title: 'ভোটের দিন, ভয় আর অপেক্ষা', icon: 'fa-vote-yea' },
+                        { id: 'chapter-3', title: 'বাজারে দাম, ঘরে নীরবতা', icon: 'fa-shopping-cart' },
+                        { id: 'chapter-4', title: 'কৃষকের খাতা', icon: 'fa-seedling' },
+                        { id: 'chapter-5', title: 'শহরের তরুণের প্রশ্ন', icon: 'fa-user-graduate' },
+                        { id: 'chapter-6', title: 'নারীর নিরাপত্তা ও রাষ্ট্র', icon: 'fa-female' },
+                        { id: 'chapter-7', title: 'স্কুলঘরের ভাঙা বেঞ্চ', icon: 'fa-school' },
+                        { id: 'chapter-8', title: 'হাসপাতালের বারান্দা', icon: 'fa-hospital' },
+                        { id: 'chapter-9', title: '"আমরা কি শুধু সংখ্যা?"', icon: 'fa-hashtag' },
+                        { id: 'chapter-10', title: 'মানুষ রাষ্ট্রকে কী চায়', icon: 'fa-heart' }
+                    ]
+                },
+                {
+                    id: 'transition',
+                    title: 'ট্রানজিশন চ্যাপ্টার',
+                    chapters: [
+                        { id: 'transition-chapter', title: 'যখন মানুষের প্রশ্ন নীতির দরজায় কড়া নাড়ে', icon: 'fa-bridge' }
+                    ]
+                },
+                {
+                    id: 'part-b',
+                    title: 'পার্ট বি — কর্মকর্তার চোখে',
+                    chapters: [
+                        { id: 'chapter-11', title: 'ফাইলের ভেতরের দেশ', icon: 'fa-file-alt' },
+                        { id: 'chapter-12', title: 'মাঠ আর মন্ত্রণালয়ের দূরত্ব', icon: 'fa-road' },
+                        { id: 'chapter-13', title: 'নিয়ম বনাম বাস্তবতা', icon: 'fa-balance-scale' },
+                        { id: 'chapter-14', title: 'আদেশ আসে, প্রশ্ন থাকে', icon: 'fa-clipboard-list' },
+                        { id: 'chapter-15', title: 'নিরপেক্ষ থাকার লড়াই', icon: 'fa-balance-scale-right' },
+                        { id: 'chapter-16', title: 'ক্ষমতা বদলায়, ফাইল থাকে', icon: 'fa-exchange-alt' },
+                        { id: 'chapter-17', title: 'একজন কর্মকর্তার নীরব স্বীকারোক্তি', icon: 'fa-user-secret' }
+                    ]
+                },
+                {
+                    id: 'part-c',
+                    title: 'পার্ট সি — রাজনীতিবিদের চোখে',
+                    chapters: [
+                        { id: 'chapter-19', title: 'সিদ্ধান্তের টেবিল', icon: 'fa-gavel' },
+                        { id: 'chapter-20', title: 'জনতা, জনমত ও দায়', icon: 'fa-users' },
+                        { id: 'chapter-21', title: 'ক্ষমতার লোভ বনাম রাষ্ট্রের প্রয়োজন', icon: 'fa-crown' },
+                        { id: 'chapter-22', title: 'ইতিহাস কী শেখায়', icon: 'fa-history' },
+                        { id: 'chapter-23', title: 'ভুল, অনুশোচনা ও শিক্ষা', icon: 'fa-exclamation-triangle' },
+                        { id: 'chapter-24', title: 'সংস্কার কেন জরুরি', icon: 'fa-tools' },
+                        { id: 'chapter-25', title: 'রাষ্ট্র বনাম দল', icon: 'fa-balance-scale-left' },
+                        { id: 'chapter-26', title: 'একটি নতুন শুরুর প্রস্তাব', icon: 'fa-lightbulb' }
+                    ]
+                },
+                {
+                    id: 'author-note',
+                    title: 'লেখকের নোট',
+                    chapters: [
+                        { id: 'author-note-chapter', title: 'লেখকের নোট', icon: 'fa-pen-fancy' }
+                    ]
+                }
+            ]
+        };
+        
+        // Initialize App
+        class EBookApp {
+            constructor() {
+                this.currentTheme = 'light';
+                this.fontSize = 1.1;
+                this.isAudioPlaying = false;
+                this.currentSentenceIndex = 0;
+                this.sentences = [];
+                this.bookmarks = JSON.parse(localStorage.getItem('bookmarks') || '[]');
+                this.completedChapters = JSON.parse(localStorage.getItem('completedChapters') || '[]');
+                this.speechSynthesis = window.speechSynthesis;
+                this.currentUtterance = null;
+                this.audioSpeed = 1;
+                
+                this.init();
+            }
+            
+            init() {
+                this.loadBookContent();
+                this.generateTOC();
+                this.setupEventListeners();
+                this.updateProgress();
+                this.loadBookmarks();
+            }
+            
+            loadBookContent() {
+                // This would load the actual content from the HTML file
+                // For now, we'll use a placeholder
+                const contentDiv = document.getElementById('bookContent');
+                
+                // In production, this would fetch from the state.txt file
+                // For demonstration, showing structure
+                contentDiv.innerHTML = `
+                    <section id="part-a" class="part">
+                        <h2>পার্ট এ — মানুষের চোখে</h2>
+                        ${this.generateChapterHTML('chapter-1', 'ভোরের লাইনে দাঁড়ানো মানুষ', `
+                            <p class="sentence">ভোর তখনো পুরো জাগেনি।</p>
+                            <p class="sentence">আকাশে হালকা কুয়াশা, মাটিতে শিশির, আর মানুষের চোখে একধরনের অচেনা অপেক্ষা।</p>
+                            <p class="sentence">স্কুলের সামনে লম্বা লাইন। কেউ চুপচাপ দাঁড়িয়ে, কেউ কথা বলছে নিচু গলায়।</p>
+                            <p class="sentence">লাইনের শুরুটা দেখা যায় না, শেষটাও না। যেন এটা শুধু মানুষের লাইন নয়—এটা সময়ের লাইন।</p>
+                            <p class="sentence">রহিম উদ্দিন দাঁড়িয়ে আছে লাইনের মাঝখানে। বয়স পঞ্চাশ ছুঁইছুঁই।</p>
+                            <p class="sentence">হাতে জাতীয় পরিচয়পত্রটা এমনভাবে ধরা, যেন হারিয়ে গেলে আবার নিজের অস্তিত্ব হারাবে।</p>
+                            <div class="highlight">
+                                <p class="sentence">সে মনে মনে হিসাব করে— শেষ কবে সে এভাবে লাইনে দাঁড়িয়েছিল?</p>
+                            </div>
+                            <p class="sentence">চাল কিনতে দাঁড়িয়েছিল। হাসপাতালে টিকিট কাটতে দাঁড়িয়েছিল।</p>
+                            <p class="sentence">কিন্তু আজকের লাইনটা আলাদা। আজ সে দাঁড়িয়েছে রাষ্ট্রের সামনে।</p>
+                        `)}
+                        
+                        ${this.generateChapterHTML('chapter-2', 'ভোটের দিন, ভয় আর অপেক্ষা', `
+                            <p class="sentence">ভোটের দিন মানেই উৎসব ছিল একসময়।</p>
+                            <p class="sentence">রঙিন পোস্টার, হৈচৈ, মানুষে মানুষে কথা।</p>
+                            <p class="sentence">এখন ভোটের দিন মানে—নীরবতা।</p>
+                            <p class="sentence">রহিমের স্ত্রী আয়েশা ঘর থেকে বের হওয়ার আগে একবার বলেছিল, — "ঝামেলা হবে না তো?"</p>
+                            <p class="sentence">এই প্রশ্নে শুধু ভয় নেই, আছে ক্লান্তি।</p>
+                        `)}
+                    </section>
+                `;
+                
+                this.processSentences();
+            }
+            
+            generateChapterHTML(id, title, content) {
+                return `
+                    <div class="chapter" id="${id}">
+                        <h3><i class="fas fa-book"></i> ${title}</h3>
+                        ${content}
+                    </div>
+                `;
+            }
+            
+            processSentences() {
+                const allSentences = document.querySelectorAll('.sentence');
+                this.sentences = Array.from(allSentences);
+                
+                // Add click handlers for bookmarking
+                this.sentences.forEach((sentence, index) => {
+                    sentence.addEventListener('click', () => this.toggleBookmark(index));
+                });
+            }
+            
+            generateTOC() {
+                const tocContainer = document.getElementById('tocContainer');
+                let tocHTML = '';
+                
+                bookContent.parts.forEach(part => {
+                    tocHTML += `
+                        <div class="toc-part" id="toc-${part.id}">
+                            <div class="part-title" data-part="${part.id}">
+                                <span>${part.title}</span>
+                                <i class="fas fa-chevron-right"></i>
+                            </div>
+                            <div class="chapters-list" id="chapters-${part.id}">
+                                ${part.chapters.map(chapter => `
+                                    <div class="toc-chapter ${this.completedChapters.includes(chapter.id) ? 'completed' : ''}" 
+                                         data-chapter="${chapter.id}">
+                                        <i class="fas ${chapter.icon}"></i>
+                                        ${chapter.title}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                tocContainer.innerHTML = tocHTML;
+                
+                // Expand first part by default
+                const firstPartList = document.getElementById('chapters-part-a');
+                if (firstPartList) {
+                    firstPartList.classList.add('show');
+                }
+            }
+            
+            setupEventListeners() {
+                // Sidebar toggle
+                document.getElementById('toggleSidebar').addEventListener('click', () => {
+                    document.getElementById('sidebar').classList.toggle('hidden');
+                    document.getElementById('mainContent').classList.toggle('expanded');
+                });
+                
+                // Audio toggle
+                document.getElementById('toggleAudio').addEventListener('click', () => {
+                    const audioPlayer = document.getElementById('audioPlayer');
+                    audioPlayer.classList.toggle('active');
+                    document.getElementById('toggleAudio').classList.toggle('active');
+                });
+                
+                // Bookmarks toggle
+                document.getElementById('toggleBookmarks').addEventListener('click', () => {
+                    document.getElementById('bookmarksPanel').classList.toggle('active');
+                    document.getElementById('toggleBookmarks').classList.toggle('active');
+                });
+                
+                // Theme buttons
+                document.querySelectorAll('.theme-btn').forEach(btn => {
+                    btn.addEventListener('click', () => this.changeTheme(btn.dataset.theme));
+                });
+                
+                // Font size controls
+                document.getElementById('increaseFont').addEventListener('click', () => this.changeFontSize(0.1));
+                document.getElementById('decreaseFont').addEventListener('click', () => this.changeFontSize(-0.1));
+                
+                // Audio controls
+                document.getElementById('audioPlayPause').addEventListener('click', () => this.toggleAudio());
+                document.getElementById('audioStop').addEventListener('click', () => this.stopAudio());
+                document.getElementById('audioPrevSentence').addEventListener('click', () => this.previousSentence());
+                document.getElementById('audioNextSentence').addEventListener('click', () => this.nextSentence());
+                document.getElementById('speedControl').addEventListener('change', (e) => {
+                    this.audioSpeed = parseFloat(e.target.value);
+                });
+                
+                // TOC navigation
+                document.querySelectorAll('.part-title').forEach(title => {
+                    title.addEventListener('click', (e) => {
+                        const partId = title.dataset.part;
+                        const chaptersList = document.getElementById(`chapters-${partId}`);
+                        chaptersList.classList.toggle('show');
+                        title.querySelector('i').style.transform = 
+                            chaptersList.classList.contains('show') ? 'rotate(90deg)' : 'rotate(0deg)';
+                    });
+                });
+                
+                document.querySelectorAll('.toc-chapter').forEach(chapter => {
+                    chapter.addEventListener('click', () => {
+                        const chapterId = chapter.dataset.chapter;
+                        this.navigateToChapter(chapterId);
+                    });
+                });
+                
+                // Scroll to top
+                document.getElementById('scrollTop').addEventListener('click', () => {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                });
+                
+                // Scroll progress
+                window.addEventListener('scroll', () => this.updateProgress());
+            }
+            
+            changeTheme(theme) {
+                document.body.setAttribute('data-theme', theme);
+                document.querySelectorAll('.theme-btn').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.theme === theme);
+                });
+                this.currentTheme = theme;
+                localStorage.setItem('theme', theme);
+            }
+            
+            changeFontSize(delta) {
+                this.fontSize = Math.max(0.8, Math.min(2, this.fontSize + delta));
+                document.documentElement.style.setProperty('--font-size', `${this.fontSize}rem`);
+                document.getElementById('fontSizeDisplay').textContent = this.fontSize.toFixed(1);
+                localStorage.setItem('fontSize', this.fontSize);
+            }
+            
+            toggleAudio() {
+                if (this.isAudioPlaying) {
+                    this.pauseAudio();
+                } else {
+                    this.playAudio();
+                }
+            }
+            
+            playAudio() {
+                if (this.currentSentenceIndex >= this.sentences.length) {
+                    this.currentSentenceIndex = 0;
+                }
+                
+                this.isAudioPlaying = true;
+                document.querySelector('#audioPlayPause i').className = 'fas fa-pause';
+                
+                this.speakSentence(this.currentSentenceIndex);
+            }
+            
+            pauseAudio() {
+                this.isAudioPlaying = false;
+                this.speechSynthesis.cancel();
+                document.querySelector('#audioPlayPause i').className = 'fas fa-play';
+            }
+            
+            stopAudio() {
+                this.pauseAudio();
+                this.currentSentenceIndex = 0;
+                this.clearHighlights();
+                this.updateAudioInfo();
+            }
+            
+            speakSentence(index) {
+                if (index >= this.sentences.length) {
+                    this.stopAudio();
+                    return;
+                }
+                
+                const sentence = this.sentences[index];
+                const text = sentence.textContent;
+                
+                this.clearHighlights();
+                sentence.classList.add('reading');
+                sentence.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                
+                this.currentUtterance = new SpeechSynthesisUtterance(text);
+                this.currentUtterance.lang = 'bn-BD';
+                this.currentUtterance.rate = this.audioSpeed;
+                
+                this.currentUtterance.onend = () => {
+                    if (this.isAudioPlaying) {
+                        this.currentSentenceIndex++;
+                        this.speakSentence(this.currentSentenceIndex);
+                    }
+                };
+                
+                this.speechSynthesis.speak(this.currentUtterance);
+                this.updateAudioInfo();
+            }
+            
+            nextSentence() {
+                this.speechSynthesis.cancel();
+                this.currentSentenceIndex = Math.min(this.currentSentenceIndex + 1, this.sentences.length - 1);
+                if (this.isAudioPlaying) {
+                    this.speakSentence(this.currentSentenceIndex);
+                } else {
+                    this.updateAudioInfo();
+                }
+            }
+            
+            previousSentence() {
+                this.speechSynthesis.cancel();
+                this.currentSentenceIndex = Math.max(this.currentSentenceIndex - 1, 0);
+                if (this.isAudioPlaying) {
+                    this.speakSentence(this.currentSentenceIndex);
+                } else {
+                    this.updateAudioInfo();
+                }
+            }
+            
+            clearHighlights() {
+                this.sentences.forEach(s => s.classList.remove('reading'));
+            }
+            
+            updateAudioInfo() {
+                document.getElementById('currentSentence').textContent = 
+                    `${this.currentSentenceIndex + 1}/${this.sentences.length}`;
+                
+                const progress = (this.currentSentenceIndex / this.sentences.length) * 100;
+                document.getElementById('audioProgressFill').style.width = `${progress}%`;
+            }
+            
+            toggleBookmark(sentenceIndex) {
+                const sentence = this.sentences[sentenceIndex];
+                const text = sentence.textContent;
+                
+                const existingIndex = this.bookmarks.findIndex(b => b.text === text);
+                
+                if (existingIndex >= 0) {
+                    this.bookmarks.splice(existingIndex, 1);
+                    sentence.classList.remove('bookmarked');
+                } else {
+                    this.bookmarks.push({
+                        text: text,
+                        index: sentenceIndex,
+                        timestamp: new Date().toISOString()
+                    });
+                    sentence.classList.add('bookmarked');
+                }
+                
+                localStorage.setItem('bookmarks', JSON.stringify(this.bookmarks));
+                this.loadBookmarks();
+            }
+            
+            loadBookmarks() {
+                const bookmarksList = document.getElementById('bookmarksList');
+                
+                if (this.bookmarks.length === 0) {
+                    bookmarksList.innerHTML = `
+                        <p style="text-align: center; padding: 20px; opacity: 0.6;">
+                            <i class="fas fa-bookmark" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
+                            এখনো কোনো বুকমার্ক নেই
+                        </p>
+                    `;
+                    return;
+                }
+                
+                bookmarksList.innerHTML = this.bookmarks.map((bookmark, index) => `
+                    <div class="bookmark-item" data-index="${bookmark.index}">
+                        <div style="font-size: 0.9rem; margin-bottom: 5px;">${bookmark.text}</div>
+                        <div style="font-size: 0.8rem; opacity: 0.7;">
+                            ${new Date(bookmark.timestamp).toLocaleDateString('bn-BD')}
+                        </div>
+                    </div>
+                `).join('');
+                
+                // Add click handlers
+                document.querySelectorAll('.bookmark-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        const index = parseInt(item.dataset.index);
+                        this.sentences[index].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    });
+                });
+                
+                // Apply bookmarked class to sentences
+                this.bookmarks.forEach(bookmark => {
+                    if (this.sentences[bookmark.index]) {
+                        this.sentences[bookmark.index].classList.add('bookmarked');
+                    }
+                });
+            }
+            
+            navigateToChapter(chapterId) {
+                const chapter = document.getElementById(chapterId);
+                if (chapter) {
+                    chapter.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    
+                    // Mark as completed
+                    if (!this.completedChapters.includes(chapterId)) {
+                        this.completedChapters.push(chapterId);
+                        localStorage.setItem('completedChapters', JSON.stringify(this.completedChapters));
+                        
+                        const tocChapter = document.querySelector(`[data-chapter="${chapterId}"]`);
+                        if (tocChapter) {
+                            tocChapter.classList.add('completed');
+                        }
+                    }
+                    
+                    // Update active state
+                    document.querySelectorAll('.toc-chapter').forEach(ch => ch.classList.remove('active'));
+                    const activeChapter = document.querySelector(`[data-chapter="${chapterId}"]`);
+                    if (activeChapter) {
+                        activeChapter.classList.add('active');
+                    }
+                }
+            }
+            
+            updateProgress() {
+                const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+                const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                const scrolled = (winScroll / height) * 100;
+                
+                document.getElementById('progressBar').style.width = scrolled + '%';
+            }
+        }
+        
+        // Initialize the app
+        const app = new EBookApp();
+        
+        // Load saved preferences
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            app.changeTheme(savedTheme);
+        }
+        
+        const savedFontSize = localStorage.getItem('fontSize');
+        if (savedFontSize) {
+            app.fontSize = parseFloat(savedFontSize);
+            app.changeFontSize(0);
+        }
+    </script>
+</body>
+</html>
