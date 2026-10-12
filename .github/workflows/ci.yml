@@ -20,11 +20,16 @@ jobs:
           test -f css/ebook.css
           test -f js/ebook.js
           test -f assets/mark.svg
+          test -f cover.jpg
+          test -f og-image.jpg
           test -f downloads/rashtra-teen-chokhe.epub
           test -f downloads/rashtra-teen-chokhe.pdf
       - name: HTML has title and chapters
         run: |
           grep -q "রাষ্ট্রকে দেখা তিন চোখে" index.html
+          grep -q "og-image.jpg" index.html
+          grep -q "cover.jpg" index.html
+          grep -q "og-image.jpg" read.html
           grep -q "id=\"chapter01\"" read.html
           grep -q "id=\"chapter26\"" read.html
           grep -q "id=\"authornote\"" read.html
