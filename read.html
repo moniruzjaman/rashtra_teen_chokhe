@@ -197,12 +197,22 @@
   <button class="icon-btn" id="ttsNext" aria-label="পরের বাক্য">⏭</button>
   <button class="icon-btn" id="ttsStop" aria-label="বন্ধ">■</button>
   <div class="tts-now" id="ttsNow">শুনুন</div>
+  <select id="ttsVoice" aria-label="কণ্ঠ নির্বাচন" title="কণ্ঠ নির্বাচন">
+    <option value="auto" selected>স্বয়ংক্রিয় কণ্ঠ</option>
+  </select>
+  <select id="ttsStyle" aria-label="পাঠের ধরন" title="পাঠের ধরন">
+    <option value="natural" selected>স্বাভাবিক</option>
+    <option value="authoritative">গম্ভীর ও কর্তৃত্বপূর্ণ</option>
+    <option value="warm">উষ্ণ ও নরম</option>
+  </select>
   <select id="ttsRate" aria-label="গতি">
     <option value="0.8">০.৮×</option>
+    <option value="0.95">০.৯৫×</option>
     <option value="1" selected>১×</option>
     <option value="1.2">১.২×</option>
     <option value="1.5">১.৫×</option>
   </select>
+  <label class="tts-perspective"><input type="checkbox" id="ttsPerspective"> তিন দৃষ্টিকোণে স্বতন্ত্র কণ্ঠ</label>
 </div>
 <div id="toast" role="status"></div>
 <script src="js/ebook.js"></script>

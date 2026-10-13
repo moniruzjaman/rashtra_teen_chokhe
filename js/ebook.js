@@ -127,29 +127,186 @@
       var nowEl = $("ttsNow");
       var playBtn = $("ttsPlay");
       var open = false;
+      var allVoices = [];
+
+      // Which part of the book each chapter belongs to (drives per-perspective voices)
+      function chapterPart(ch) {
+        var id = ch.id || "";
+        if (/^chapter(0[1-9]|10)$/.test(id) || id === "transition") return "A";   // মানুষের চোখে
+        if (/^chapter1[1-7]$/.test(id)) return "B";                                // কর্মকর্তার চোখে
+        if (/^chapter(18|19|2[0-6])$/.test(id)) return "C";                        // রাজনীতিবিদের চোখে
+        return "N";                                                                // নিরপেক্ষ (শেষ কথা ইত্যাদি)
+      }
 
       function collect() {
         units = [];
         chapters.forEach(function (ch) {
+          var part = chapterPart(ch);
           var nodes = ch.querySelectorAll("h3, p, blockquote, .chapter-highlight, li");
           for (var i = 0; i < nodes.length; i++) {
             var el = nodes[i];
             var text = (el.innerText || el.textContent || "").replace(/\s+/g, " ").trim();
-            if (text.length > 1) units.push({ el: el, text: text, chapter: ch });
+            if (text.length > 1) units.push({ el: el, text: text, chapter: ch, part: part });
           }
         });
       }
       collect();
 
-      function pickVoice() {
-        var voices = synth.getVoices() || [];
-        var bn = voices.filter(function (v) {
-          return /bn|bengali|bangla/i.test((v.lang || "") + " " + (v.name || ""));
-        });
-        return bn[0] || voices.find(function (v) { return /^en/i.test(v.lang || ""); }) || voices[0] || null;
+      // ---- Voice catalog & gender heuristics -------------------------------
+      var MALE = /(male|pradeep|ravi|hemant|mads|david|mark|george|james|oliver|fred|alex|daniel|liam|aaron|arthur|diego|carlos|juan|pablo|jorge|raul|thomas|william|conrad|richard|eric|ivan|paul|kumar|rajit|madhur|pratap|rohit|abhishek|hemchandra|nasser|salman|fahad|zariab|farhad|asif|rehan|arjun|vijay|veer|karim|younes|magomed|pavel|dmitry|sergey|andrey|jurgen|stefan|ludovic|nicolas|henrique|joao|francisco|emilio|giovan|antonio|javier|raul)/i;
+      var FEMALE = /(female|nabanita|sarita|shreya|swara|kalpana|heera|lekha|veena|vasundhira|aditi|neerja|rioswo|ananya|kajal|mimi|samantha|serena|aria|jenny|sonia|natasha|hazel|sonia|tessa|catherine|susan|linda|emma|olivia|amelie|audrey|blanca|camila|elsa|esperanza|ilaria|jaime|laurel|luciana|marisol|mia|monica|paloma|penelope|pietra|sabina|samyra|sofía|constance|charlotte|vivienne|zosia|anna|maria|katarzyna|joana|inês|denise|helena|fatima|maryam|mariam|layla|hoda|amira|sara|nora|irene|silvia|karen|ella|rachel|melina|athena|agios|evangelia|zeynep|merve|filiz|tolga|burak|ceren|selin|elif|dilan|narges|sanjna|puja|rupa|uhabi|salli|tracy|hanh|thuy|ling|yunxi|xiaoxiao|yaoyao|nanjing|shanghai|tianyi|michiko|haruka|saori|hyunsik|sunhi|ji-min|seoyeon|narisa|bin|premkarn|mai|dao|dara|sokha|chan|kim|lynn|mint|jade|ruby|iris|freya|ida|sofia|sigrid|grimr|gunnr|annike|ingrid|freyr|sunniva|vilde|amanda|frida|selma|ninni|alva|saga|lovi|maja|astrid|eilid|cat|carys|bonnie|geraint|rhys|nljs|willem|maaike|fenna|joris|noortje|bart|elliot|clara|lena|milena|katja|peter|klaus|marlene|exaggerated)/i;
+
+      function isFemale(v) {
+        var s = (v.name || "") + " " + (v.voiceURI || "");
+        if (MALE.test(s) && !FEMALE.test(s)) return false;
+        if (FEMALE.test(s) && !MALE.test(s)) return true;
+        return null; // unknown
+      }
+      function isMale(v) {
+        var f = isFemale(v);
+        return f === null ? null : !f;
+      }
+      function isNeural(v) {
+        return /neural|natural|premium|enhanced|google|microsoft|online/i.test((v.name || "") + " " + (v.voiceURI || ""));
+      }
+      function isLocal(v) {
+        return /local/i.test(v.voiceURI || "") || v.localService;
       }
 
+      function refreshVoices() {
+        var vs = [];
+        try { vs = synth.getVoices() || []; } catch (e) {}
+        if (vs.length) allVoices = [].slice.call(vs);
+        populateVoiceSelect();
+      }
+
+      function labelFor(v) {
+        var g = isFemale(v);
+        var tag = g === true ? " (কণ্ঠ — স্ত্রী)" : g === false ? " (কণ্ঠ — পুরুষ)" : "";
+        var n = isNeural(v) ? " ✦" : "";
+        return v.name + " [" + (v.lang || "?") + "]" + tag + n;
+      }
+
+      function populateVoiceSelect() {
+        var sel = $("ttsVoice");
+        if (!sel) return;
+        var cur = get("voice") || "auto";
+        sel.innerHTML = "";
+        var o = document.createElement("option");
+        o.value = "auto";
+        o.textContent = "স্বয়ংক্রিয় কণ্ঠ (প্রথমে বাংলা)";
+        sel.appendChild(o);
+        // Bengali first, then others; neural-preferred ordering within group
+        var sorted = allVoices.slice().sort(function (a, b) {
+          var ab = /^(bn|ben)/i.test(a.lang) ? 0 : 1, bb = /^(bn|ben)/i.test(b.lang) ? 0 : 1;
+          if (ab !== bb) return ab - bb;
+          return (isNeural(b) ? 1 : 0) - (isNeural(a) ? 1 : 0);
+        });
+        for (var i = 0; i < sorted.length; i++) {
+          var opt = document.createElement("option");
+          opt.value = encodeURIComponent(sorted[i].voiceURI);
+          opt.textContent = labelFor(sorted[i]);
+          sel.appendChild(opt);
+        }
+        sel.value = "auto";
+        if (cur && cur !== "auto") { try { sel.value = cur; } catch (e) {} }
+        if (sel.selectedIndex < 0) sel.value = "auto";
+      }
+
+      function findVoiceURI(uri) {
+        for (var i = 0; i < allVoices.length; i++) if (encodeURIComponent(allVoices[i].voiceURI) === uri) return allVoices[i];
+        return null;
+      }
+
+      // Choose a voice for a unit, honoring manual selection, perspective mode, and tone style.
+      function perspectiveOn() {
+        return !!($("ttsPerspective") && $("ttsPerspective").checked);
+      }
+
+      function pickVoice(unit) {
+        var manual = $("ttsVoice") ? $("ttsVoice").value : "auto";
+        if (manual && manual !== "auto") {
+          var mv = findVoiceURI(manual);
+          if (mv) {
+            // In perspective mode, honor the requested *gender* and vary within that gender
+            if (perspectiveOn() && unit && unit.part !== "N") {
+              var wantFemale = isFemale(mv);
+              var same = allVoices.filter(function (v) {
+                return (/^(bn|ben)/i.test(v.lang || "")) && isFemale(v) === wantFemale;
+              });
+              if (same.length > 1) {
+                var offset = unit.part === "A" ? 0 : unit.part === "B" ? (same.length > 1 ? 1 : 0) : (same.length > 2 ? 2 : same.length - 1);
+                return same[Math.min(offset, same.length - 1)];
+              }
+            }
+            return mv;
+          }
+        }
+        if (!allVoices.length) return null;
+        var bn = allVoices.filter(function (v) { return /^(bn|ben)/i.test(v.lang || ""); });
+        var pool = bn.length ? bn : allVoices.filter(function (v) { return /^en/i.test(v.lang || ""); });
+        if (!pool.length) pool = allVoices;
+
+        function best(pred) { var m = pool.filter(pred); return m.length ? m[0] : null; }
+
+        var perspOn = perspectiveOn();
+        if (perspOn && unit) {
+          // Part A (মানুষ): warm female if available, else any. Part B (কর্মকর্তা): measured male.
+          // Part C (রাজনীতিবিদ): distinct male (second choice). Neutral: preferred default.
+          if (unit.part === "A") return best(function (v) { return isFemale(v) === true; }) || best(function (v) { return isNeural(v); }) || pool[0];
+          if (unit.part === "B") return best(function (v) { return isMale(v) === true; }) || pool[0];
+          if (unit.part === "C") {
+            var males = pool.filter(function (v) { return isMale(v) === true; });
+            return males[1] || males[0] || pool[pool.length - 1];
+          }
+          return best(function (v) { return isNeural(v); }) || pool[0];
+        }
+        // Single-voice mode: prefer neural Bengali voice
+        return best(function (v) { return isNeural(v); }) || pool[0];
+      }
+
+      // Tone presets: pitch/rate tuned per selected voice gender for a professional sound.
+      function applyTone(u, unit) {
+        var style = $("ttsStyle") ? $("ttsStyle").value : "natural";
+        var base = parseFloat(($("ttsRate") && $("ttsRate").value) || "1");
+        var female = isFemale(u.voice) === true;
+        var pitch, rate;
+        if (style === "authoritative") {
+          pitch = female ? 0.85 : 0.72;   // lower, weightier
+          rate = base * 0.92;             // slower = more authority
+        } else if (style === "warm") {
+          pitch = female ? 1.05 : 0.95;   // gentle, near natural
+          rate = base * 0.95;
+        } else {
+          pitch = 1.0;
+          rate = base;
+        }
+        if (unit) {
+          if (unit.part === "C") pitch += 0.08;          // politician: slightly sharper/higher energy
+          if (unit.part === "B") pitch -= 0.04;          // officer: flatter, measured
+          if (/—\s*[“"]|বলে,|জিজ্ঞেস করে|বলল|ফিসফিস/.test(unit.text)) pitch += 0.05; // dialogue lift
+        }
+        u.pitch = Math.min(2, Math.max(0, pitch));
+        u.rate = Math.min(2, Math.max(0.5, rate));
+      }
+
+      // Split long blocks at sentence boundaries so prosody resets naturally per sentence.
+      function splitSentences(text) {
+        if (text.length <= 220) return [text];
+        var parts = text.split(/(?<=[।.!?…])\s+/);
+        var out = [], buf = "";
+        for (var i = 0; i < parts.length; i++) {
+          if ((buf + " " + parts[i]).length > 220 && buf) { out.push(buf.trim()); buf = parts[i]; }
+          else buf = (buf + " " + parts[i]).trim();
+        }
+        if (buf) out.push(buf);
+        return out.length ? out : [text];
+      }
+
+      var lastMarked = -1;
       function mark(i) {
+        if (i === lastMarked) return; // one sentence in a multi-sentence unit shouldn't re-scroll
+        lastMarked = i;
         document.querySelectorAll(".speaking").forEach(function (n) { n.classList.remove("speaking"); });
         if (i < 0 || i >= units.length) return;
         units[i].el.classList.add("speaking");
@@ -163,18 +320,25 @@
         if (i >= units.length) { stop(); toast("পাঠ শেষ"); return; }
         idx = i;
         synth.cancel();
-        var u = new SpeechSynthesisUtterance(units[i].text);
-        u.lang = "bn-BD";
-        u.rate = parseFloat(($("ttsRate") && $("ttsRate").value) || "1");
-        var voice = pickVoice();
-        if (voice) u.voice = voice;
-        u.onstart = function () { speaking = true; paused = false; mark(i); if (playBtn) playBtn.textContent = "❚❚"; };
-        u.onend = function () {
-          if (!speaking) return;
-          speakAt(idx + 1);
-        };
-        u.onerror = function () { speaking = false; if (playBtn) playBtn.textContent = "▶"; };
-        synth.speak(u);
+        var unit = units[i];
+        var sentences = splitSentences(unit.text);
+        var voice = pickVoice(unit);
+        var pending = true; // guard against onend firing after cancel()
+        sentences.forEach(function (s, si) {
+          var u = new SpeechSynthesisUtterance(s);
+          u.lang = voice && /^bn/i.test(voice.lang) ? voice.lang : "bn-BD";
+          if (voice) u.voice = voice;
+          applyTone(u, unit);
+          u.onstart = function () {
+            if (pending) { pending = false; speaking = true; paused = false; mark(i); if (playBtn) playBtn.textContent = "❚❚"; }
+          };
+          u.onend = function () {
+            if (!speaking) return;              // stopped/cancelled mid-unit
+            if (si === sentences.length - 1) speakAt(idx + 1);
+          };
+          u.onerror = function () { speaking = false; if (playBtn) playBtn.textContent = "▶"; };
+          synth.speak(u);
+        });
       }
 
       function currentIndex() {
@@ -193,13 +357,22 @@
       }
       function pause() { synth.pause(); paused = true; speaking = false; if (playBtn) playBtn.textContent = "▶"; }
       function stop() {
-        speaking = false; paused = false;
+        speaking = false; paused = false; lastMarked = -1;
         synth.cancel();
         document.querySelectorAll(".speaking").forEach(function (n) { n.classList.remove("speaking"); });
         if (playBtn) playBtn.textContent = "▶";
         if (nowEl) nowEl.textContent = "শুনুন";
       }
       function toggle() { if (speaking && !paused) pause(); else play(); }
+      function preview() {
+        try { synth.cancel(); } catch (e) {}
+        var fake = { text: "রাষ্ট্রকে দেখা তিন চোখে — এই বইয়ের তিনটি দৃষ্টিকোণ।", part: "N", chapter: { dataset: { title: "নমুনা" } }, el: document.body };
+        var u = new SpeechSynthesisUtterance(fake.text);
+        var v = pickVoice(fake);
+        if (v) { u.voice = v; u.lang = /^bn/i.test(v.lang || "") ? v.lang : "bn-BD"; } else u.lang = "bn-BD";
+        applyTone(u, fake);
+        try { synth.speak(u); } catch (e) {}
+      }
       function show() {
         open = true;
         if (bar) { bar.hidden = false; bar.classList.add("on"); }
@@ -212,13 +385,39 @@
         document.body.classList.remove("tts-on");
       }
 
-      if ($("ttsToggle")) $("ttsToggle").onclick = function () { if (open) close(); else { show(); play(); } };
+      if ($("ttsToggle")) $("ttsToggle").onclick = function () {
+        if (open) close();
+        else {
+          show();
+          if (!allVoices.length) refreshVoices(); // voices may load lazily on first user gesture
+          play();
+        }
+      };
       if (playBtn) playBtn.onclick = toggle;
       if ($("ttsStop")) $("ttsStop").onclick = stop;
       if ($("ttsPrev")) $("ttsPrev").onclick = function () { speakAt(idx - 1); };
       if ($("ttsNext")) $("ttsNext").onclick = function () { speakAt(idx + 1); };
-      if ($("ttsRate")) $("ttsRate").onchange = function () { if (speaking) speakAt(idx); };
-      synth.onvoiceschanged = function () {};
+      if ($("ttsRate")) $("ttsRate").onchange = function () { set("rate", this.value); if (speaking) speakAt(idx); };
+      if ($("ttsVoice")) $("ttsVoice").onchange = function () {
+        set("voice", this.value);
+        if (speaking) speakAt(idx); else preview();
+      };
+      if ($("ttsStyle")) $("ttsStyle").onchange = function () {
+        set("style", this.value);
+        if (speaking) speakAt(idx); else preview();
+      };
+      if ($("ttsPerspective")) $("ttsPerspective").onchange = function () {
+        set("persp", this.checked ? "1" : "0");
+        if (speaking) speakAt(idx);
+      };
+      // Restore saved settings
+      try {
+        if ($("ttsRate") && get("rate")) $("ttsRate").value = get("rate");
+        if ($("ttsStyle") && get("style")) $("ttsStyle").value = get("style");
+        if ($("ttsPerspective")) $("ttsPerspective").checked = get("persp") === "1";
+      } catch (e) {}
+      synth.onvoiceschanged = refreshVoices;
+      refreshVoices();
       addEventListener("beforeunload", stop);
 
       return { toggle: toggle, close: close, get open() { return open; } };
