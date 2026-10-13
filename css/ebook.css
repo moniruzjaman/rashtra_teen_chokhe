@@ -577,3 +577,41 @@ body.tts-on .panel { bottom: 92px; }
   html { scroll-behavior: auto; }
   * { transition: none !important; }
 }
+
+/* ==== Poster band — "সবার আগে বাংলাদেশ" (integrated from sbar-age-bangladesh.html) ==== */
+.poster-band {
+  --poster-bg: #f2f1ee;
+  --poster-green: #0d7a3c;   /* poster green (flag-inspired) */
+  --poster-red: #e0212c;     /* poster red   (flag-inspired) */
+  --poster-slant: -10deg;    /* the oblique "poster" shear */
+  background: var(--poster-bg);
+  padding: 4rem 1rem;
+  text-align: center;
+  border-top: 1px solid var(--line);
+}
+[data-theme="dark"] .poster-band,
+body[data-theme="dark"] .poster-band { --poster-bg: #17241d; }
+.poster-band .poster { user-select: none; }
+.poster-band .bn {
+  font-family: "Anek Bangla", "Noto Sans Bengali", "Hind Siliguri",
+               "Nikosh", "SolaimanLipi", sans-serif;
+  font-weight: 800;
+  transform: skewX(var(--poster-slant));            /* faux-italic / poster slant */
+  -webkit-text-stroke: .035em currentColor;         /* fatten glyphs */
+  letter-spacing: -.02em;                           /* tight poster tracking */
+  line-height: .82;                                 /* tight leading */
+}
+.poster-band .bn .top { display: block; color: var(--poster-green); font-size: clamp(3.5rem, 11vw, 9rem); }
+.poster-band .bn .mid {
+  display: block; color: var(--poster-red);
+  font-size: clamp(1.6rem, 5vw, 4rem);
+  width: max-content; margin: -.15em auto -.12em;   /* red word sandwiched/overlapped */
+}
+.poster-band .bn .big { display: block; color: var(--poster-green); font-size: clamp(4.5rem, 15vw, 12.5rem); }
+.poster-band .en {
+  margin-top: 2.2rem; color: var(--poster-red);
+  font-family: Montserrat, "Helvetica Neue", Arial, Roboto, "Noto Sans", sans-serif;
+  font-style: italic; font-weight: 800;
+  font-size: clamp(1.4rem, 5.2vw, 4.2rem);
+}
+@media print { .poster-band { display: none; } }
