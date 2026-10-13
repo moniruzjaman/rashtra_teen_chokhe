@@ -252,6 +252,19 @@ main.reader { max-width: var(--max); margin: 0 auto; padding: calc(var(--bar-h) 
   background: var(--card);
 }
 .cover .meta { margin-top: 16px; font-family: var(--sans); font-size: .85rem; color: var(--mute); }
+.repo-line {
+  margin-top: 10px;
+  display: flex; justify-content: center; align-items: center; gap: 6px;
+  font-family: var(--mono, ui-monospace, SFMono-Regular, Menlo, Consolas, monospace);
+  font-size: .85rem; color: var(--mute);
+}
+.repo-line svg { flex: none; opacity: .8; }
+.repo-line a { color: var(--mute); text-decoration: none; border-bottom: 1px dashed var(--line); }
+.repo-line a:hover { color: var(--forest); border-bottom-color: var(--forest); }
+.back-cover { border-bottom: none; border-top: 1px solid var(--line); margin: 40px 0 0; padding: 56px 0 24px; }
+.repo-left { justify-content: flex-start; margin-top: 14px; }
+.site-foot .repo-foot { color: inherit; text-decoration: none; border-bottom: 1px dashed currentColor; }
+.site-foot .repo-foot:hover { color: var(--forest); }
 .cta-row { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 28px; }
 .btn-primary, .btn-ghost {
   display: inline-flex; align-items: center; justify-content: center;
