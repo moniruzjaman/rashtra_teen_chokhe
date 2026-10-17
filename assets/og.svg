@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-label="রাষ্ট্রকে দেখা তিন চোখে">
+  <rect width="1200" height="630" fill="#f6f1e6"/>
+  <circle cx="180" cy="80" r="220" fill="#1b4d3e" opacity="0.12"/>
+  <circle cx="1080" cy="560" r="260" fill="#9a3412" opacity="0.10"/>
+  <rect x="80" y="80" width="96" height="96" rx="24" fill="#1b4d3e"/>
+  <circle cx="108" cy="128" r="12" fill="none" stroke="#f6f1e6" stroke-width="3"/>
+  <circle cx="108" cy="128" r="4" fill="#f6f1e6"/>
+  <circle cx="128" cy="128" r="12" fill="none" stroke="#d4b06a" stroke-width="3"/>
+  <circle cx="128" cy="128" r="4" fill="#d4b06a"/>
+  <circle cx="148" cy="128" r="12" fill="none" stroke="#ff8a80" stroke-width="3"/>
+  <circle cx="148" cy="128" r="4" fill="#ff8a80"/>
+  <text x="80" y="250" fill="#1b4d3e" font-size="28" font-family="Georgia, serif" letter-spacing="8">PEOPLE  OFFICER  POLITICIAN</text>
+  <text x="80" y="360" fill="#1c1914" font-size="72" font-family="Georgia, serif">Rashtra ke Dekha</text>
+  <text x="80" y="440" fill="#1c1914" font-size="72" font-family="Georgia, serif">Teen Chokhe</text>
+  <text x="80" y="530" fill="#6a6458" font-size="28" font-family="Georgia, serif">A state, seen from three eyes</text>
+</svg>
