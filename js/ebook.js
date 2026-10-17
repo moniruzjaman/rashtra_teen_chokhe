@@ -115,19 +115,52 @@
     if ((e.key === " " || e.code === "Space") && tts && tts.open) { e.preventDefault(); tts.toggle(); }
   });
 
-  var tts = null;
-  if ("speechSynthesis" in window) {
-    tts = (function () {
-      var synth = window.speechSynthesis;
-      var units = [];
-      var idx = 0;
-      var speaking = false;
-      var paused = false;
-      var bar = $("ttsBar");
-      var nowEl = $("ttsNow");
-      var playBtn = $("ttsPlay");
-      var open = false;
-      var allVoices = [];
+var tts = null;
+      if ("speechSynthesis" in window) {
+        tts = (function () {
+          var synth = window.speechSynthesis;
+          var units = [];
+          var idx = 0;
+          var speaking = false;
+          var paused = false;
+          var bar = $("ttsBar");
+          var nowEl = $("ttsNow");
+          var playBtn = $("ttsPlay");
+          var open = false;
+          var allVoices = [];
+
+          // Wake Lock: keep screen on while reading (prevents TTS stopping on lock)
+          var wakeLock = null;
+          var keepScreenOn = get("wake") === "1";
+          function setWake(v) {
+            keepScreenOn = v;
+            set("wake", v ? "1" : "0");
+            var cb = $("ttsWake");
+            if (cb) cb.checked = v;
+            if (v && (speaking || paused)) requestWake();
+            else if (!v) releaseWake();
+          }
+          function requestWake() {
+            if (!keepScreenOn || wakeLock) return;
+            if (!("wakeLock" in navigator)) return;
+            try {
+              navigator.wakeLock.request("screen").then(function (wl) {
+                wakeLock = wl;
+                wl.onrelease = function () { wakeLock = null; };
+              }).catch(function () { /* denied or unsupported — fail silently */ });
+            } catch (e) { /* not supported */ }
+          }
+          function releaseWake() {
+            if (wakeLock) {
+              try { wakeLock.release(); } catch (e) {}
+              wakeLock = null;
+            }
+          }
+          // Re-acquire wake lock if released by the system (e.g. timeout)
+          function refreshWake() {
+            if (keepScreenOn && (speaking || paused) && !wakeLock) requestWake();
+          }
+          setInterval(refreshWake, 5000);
 
       // Which part of the book each chapter belongs to (drives per-perspective voices)
       function chapterPart(ch) {
@@ -352,8 +385,9 @@
       }
 
       function play() {
-        if (paused) { synth.resume(); paused = false; speaking = true; if (playBtn) playBtn.textContent = "❚❚"; return; }
+        if (paused) { synth.resume(); paused = false; speaking = true; if (playBtn) playBtn.textContent = "❚❚"; requestWake(); return; }
         speakAt(speaking ? idx : currentIndex());
+        requestWake();
       }
       function pause() { synth.pause(); paused = true; speaking = false; if (playBtn) playBtn.textContent = "▶"; }
       function stop() {
@@ -362,6 +396,7 @@
         document.querySelectorAll(".speaking").forEach(function (n) { n.classList.remove("speaking"); });
         if (playBtn) playBtn.textContent = "▶";
         if (nowEl) nowEl.textContent = "শুনুন";
+        releaseWake();
       }
       function toggle() { if (speaking && !paused) pause(); else play(); }
       function preview() {
@@ -384,6 +419,23 @@
         if (bar) bar.classList.remove("on");
         document.body.classList.remove("tts-on");
       }
+
+      // Resume TTS after the page becomes visible again (e.g. after screen-off / lock).
+      // Browsers pause SpeechSynthesis when the page is backgrounded or the screen locks;
+      // we remember the desired state and resume automatically.
+      var resumeOnVisible = false;
+      addEventListener("visibilitychange", function () {
+        if (!document.hidden) {
+          if (resumeOnVisible && paused) {
+            resumeOnVisible = false;
+            try { synth.resume(); paused = false; speaking = true; if (playBtn) playBtn.textContent = "❚❚"; } catch (e) {}
+          }
+          refreshWake();
+        } else {
+          // Page hidden — system may pause synthesis. Mark that we want to resume.
+          if (speaking && !paused) { resumeOnVisible = true; }
+        }
+      });
 
       if ($("ttsToggle")) $("ttsToggle").onclick = function () {
         if (open) close();
@@ -410,15 +462,18 @@
         set("persp", this.checked ? "1" : "0");
         if (speaking) speakAt(idx);
       };
+      if ($("ttsWake")) $("ttsWake").onchange = function () { setWake(this.checked); };
       // Restore saved settings
       try {
         if ($("ttsRate") && get("rate")) $("ttsRate").value = get("rate");
         if ($("ttsStyle") && get("style")) $("ttsStyle").value = get("style");
         if ($("ttsPerspective")) $("ttsPerspective").checked = get("persp") === "1";
+        if ($("ttsWake")) $("ttsWake").checked = get("wake") === "1";
       } catch (e) {}
       synth.onvoiceschanged = refreshVoices;
       refreshVoices();
       addEventListener("beforeunload", stop);
+      addEventListener("pagehide", function () { resumeOnVisible = false; });
 
       return { toggle: toggle, close: close, get open() { return open; } };
     })();

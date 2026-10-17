@@ -427,10 +427,22 @@ body.tts-on .panel { bottom: 92px; }
   user-select: none;
 }
 .tts-perspective input { accent-color: var(--accent, currentColor); width: 15px; height: 15px; }
-@media (max-width: 640px) {
+  .tts-wake {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: .78rem;
+    color: var(--mute);
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+  }
+  .tts-wake input { accent-color: var(--accent, currentColor); width: 15px; height: 15px; }
+  @media (max-width: 640px) {
   .tts #ttsVoice { max-width: none; flex-basis: 100%; order: 5; }
   .tts-perspective { order: 6; }
-}
+  .tts-wake { order: 7; }
+  }
 .speaking {
   background: color-mix(in srgb, var(--gold) 28%, var(--hl));
   border-radius: 6px;
