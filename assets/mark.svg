@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-label="তিন চোখ">
+  <rect width="96" height="96" rx="24" fill="#1b4d3e"/>
+  <circle cx="28" cy="48" r="10" fill="none" stroke="#f6f1e6" stroke-width="2.4"/>
+  <circle cx="28" cy="48" r="3.2" fill="#f6f1e6"/>
+  <circle cx="48" cy="48" r="10" fill="none" stroke="#d4b06a" stroke-width="2.4"/>
+  <circle cx="48" cy="48" r="3.2" fill="#d4b06a"/>
+  <circle cx="68" cy="48" r="10" fill="none" stroke="#ff8a80" stroke-width="2.4"/>
+  <circle cx="68" cy="48" r="3.2" fill="#ff8a80"/>
+</svg>
