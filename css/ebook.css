@@ -627,3 +627,502 @@ body[data-theme="dark"] .poster-band { --poster-bg: #17241d; }
   font-size: clamp(1.4rem, 5.2vw, 4.2rem);
 }
 @media print { .poster-band { display: none; } }
+
+/* ============================================================
+   ENHANCEMENT 1: Reading progress bar (top of viewport)
+   ============================================================ */
+.read-progress {
+    position: fixed;
+    top: 0; left: 0;
+    height: 3px;
+    width: 0%;
+    background: linear-gradient(90deg, var(--forest), var(--leaf));
+    z-index: 100;
+    transition: width 0.1s ease-out;
+}
+
+/* ============================================================
+   ENHANCEMENT 2: Font family toggle support
+   When body has .font-sans, switch the body font from serif to sans
+   ============================================================ */
+body.font-serif { font-family: var(--serif); }
+body.font-sans  { font-family: var(--sans); }
+/* Chapter headings always stay sans-serif for contrast */
+body.font-sans .chapter h3,
+body.font-sans .ch-label {
+    font-family: var(--sans);
+}
+
+/* ============================================================
+   ENHANCEMENT 3: Share Modal — cross-platform sharing
+   ============================================================ */
+.share-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    z-index: 200;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+.share-modal.visible { display: flex; }
+
+.share-modal-content {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 520px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 12px 50px rgba(0,0,0,0.25);
+    border: 1px solid var(--line);
+}
+
+.share-modal-header {
+    padding: 18px 22px;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.share-modal-title {
+    font-family: var(--sans);
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--forest);
+    margin: 0;
+}
+
+.share-preview {
+    margin: 16px 18px;
+    padding: 12px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+.share-preview-img {
+    width: 90px; height: 60px;
+    border-radius: 6px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+.share-preview-text { flex: 1; min-width: 0; }
+.share-preview-title {
+    font-family: var(--sans);
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.3;
+    margin-bottom: 3px;
+}
+.share-preview-desc {
+    font-family: var(--serif);
+    font-size: 0.75rem;
+    color: var(--mute);
+    line-height: 1.4;
+    margin-bottom: 4px;
+}
+.share-preview-url {
+    font-family: var(--sans);
+    font-size: 0.65rem;
+    color: var(--mute);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.share-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    padding: 8px 18px 18px 18px;
+}
+@media (max-width: 480px) {
+    .share-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+.share-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 12px 4px;
+    border-radius: 10px;
+    transition: background 0.15s ease, transform 0.15s ease;
+    color: var(--ink);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: var(--sans);
+}
+.share-btn:hover { background: var(--hl); transform: translateY(-2px); }
+.share-btn:active { transform: translateY(0); }
+.share-btn span {
+    font-size: 0.72rem;
+    font-weight: 600;
+}
+.share-btn svg { transition: color 0.15s ease; }
+
+.share-whatsapp svg   { color: #25D366; }
+.share-messenger svg  { color: #0084FF; }
+.share-facebook svg   { color: #1877F2; }
+.share-linkedin svg   { color: #0A66C2; }
+.share-twitter svg    { color: #000000; }
+.share-email svg      { color: var(--forest); }
+.share-telegram svg   { color: #0088CC; }
+.share-copy svg       { color: var(--mute); }
+.share-native svg     { color: var(--leaf); }
+
+.share-link-box {
+    margin: 0 18px 14px 18px;
+    display: flex;
+    gap: 8px;
+}
+.share-link-box input {
+    flex: 1;
+    padding: 9px 12px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--paper);
+    font-family: var(--sans);
+    font-size: 0.75rem;
+    color: var(--ink);
+}
+.share-copy-btn {
+    padding: 9px 16px;
+    border: 1px solid var(--forest);
+    background: var(--forest);
+    color: white;
+    border-radius: 6px;
+    font-family: var(--sans);
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+.share-copy-btn:hover { background: var(--leaf); }
+
+.share-foot-note {
+    padding: 12px 22px 18px 22px;
+    font-family: var(--serif);
+    font-size: 0.72rem;
+    color: var(--mute);
+    font-style: italic;
+    text-align: center;
+    line-height: 1.5;
+}
+
+/* ============================================================
+   ENHANCEMENT 4: Settings Panel — slide-out reader settings
+   ============================================================ */
+.settings-panel {
+    position: fixed;
+    top: 0; right: 0; bottom: 0;
+    width: 360px;
+    max-width: 90vw;
+    background: var(--card);
+    border-left: 1px solid var(--line);
+    transform: translateX(100%);
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 180;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    box-shadow: -8px 0 32px rgba(0,0,0,0.08);
+}
+.settings-panel.open { transform: translateX(0); }
+
+.settings-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 170;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+}
+.settings-overlay.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.settings-header {
+    padding: 16px 18px;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    background: var(--card);
+    z-index: 2;
+}
+.settings-title {
+    font-family: var(--sans);
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--forest);
+    margin: 0;
+}
+
+.settings-section {
+    padding: 18px;
+    border-bottom: 1px solid var(--line);
+}
+.settings-label {
+    font-family: var(--sans);
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--mute);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.settings-value {
+    font-family: var(--sans);
+    font-size: 0.75rem;
+    color: var(--forest);
+    font-weight: 600;
+    text-transform: none;
+    letter-spacing: 0;
+}
+
+.theme-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+}
+.theme-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 12px 6px;
+    border: 2px solid var(--line);
+    border-radius: 8px;
+    font-family: var(--sans);
+    font-size: 0.72rem;
+    color: var(--ink);
+    background: none;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+}
+.theme-btn:hover { border-color: var(--leaf); }
+.theme-btn.active {
+    border-color: var(--forest);
+    background: var(--hl);
+    color: var(--forest);
+    font-weight: 600;
+}
+.theme-swatch {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+}
+.theme-swatch-auto  {
+    background: linear-gradient(135deg, #f6f1e6 50%, #121411 50%);
+}
+.theme-swatch-sepia { background: #efe2c4; }
+.theme-swatch-dark   { background: #121411; }
+
+.font-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.font-btn {
+    padding: 12px 14px;
+    border: 2px solid var(--line);
+    border-radius: 8px;
+    font-size: 0.85rem;
+    color: var(--ink);
+    background: none;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+    text-align: left;
+    font-family: var(--sans);
+}
+.font-btn:hover { border-color: var(--leaf); }
+.font-btn.active {
+    border-color: var(--forest);
+    background: var(--hl);
+    color: var(--forest);
+    font-weight: 600;
+}
+.font-btn span {
+    pointer-events: none;
+}
+
+.settings-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.settings-end {
+    color: var(--mute);
+    font-size: 0.9rem;
+    flex-shrink: 0;
+}
+.settings-range {
+    flex: 1;
+    height: 4px;
+    background: var(--line);
+    border-radius: 2px;
+    appearance: none;
+    -webkit-appearance: none;
+    outline: none;
+    cursor: pointer;
+}
+.settings-range::-webkit-slider-thumb {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 18px; height: 18px;
+    background: var(--forest);
+    border-radius: 50%;
+    cursor: pointer;
+}
+.settings-range::-moz-range-thumb {
+    width: 18px; height: 18px;
+    background: var(--forest);
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+}
+
+.btn-reset {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--line);
+    background: none;
+    color: var(--mute);
+    border-radius: 8px;
+    font-family: var(--sans);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+.btn-reset:hover {
+    border-color: var(--crimson);
+    color: var(--crimson);
+}
+
+.settings-shortcuts .shortcuts-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    font-family: var(--sans);
+    font-size: 0.78rem;
+    color: var(--ink);
+}
+.settings-shortcuts kbd {
+    display: inline-block;
+    padding: 2px 8px;
+    margin-right: 6px;
+    background: var(--hl);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    font-family: var(--sans);
+    font-size: 0.75rem;
+    color: var(--forest);
+    font-weight: 700;
+}
+
+/* ============================================================
+   ENHANCEMENT 5: Settings button in header (gear icon)
+   Inherits .icon-btn styling from existing CSS
+   ============================================================ */
+#settingsBtn {
+    position: relative;
+}
+#settingsBtn:hover {
+    border-color: var(--forest);
+}
+
+/* ============================================================
+   ENHANCEMENT 6: Mobile CTA improvements
+   - Sticky bottom CTA bar on mobile (start reading + share)
+   - Reduces scrolling required to find primary actions
+   ============================================================ */
+@media (max-width: 720px) {
+    .mobile-cta-bar {
+        position: fixed;
+        bottom: 0; left: 0; right: 0;
+        background: color-mix(in srgb, var(--card) 92%, transparent);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        border-top: 1px solid var(--line);
+        padding: 10px 14px;
+        padding-bottom: calc(10px + env(safe-area-inset-bottom, 0));
+        display: flex;
+        gap: 8px;
+        z-index: 90;
+    }
+    .mobile-cta-bar .btn-primary {
+        flex: 1;
+        text-align: center;
+    }
+    .mobile-cta-bar .icon-cta {
+        width: 44px;
+        height: 44px;
+        min-width: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: var(--paper);
+        color: var(--forest);
+    }
+    body.home .mobile-cta-bar { display: flex; }
+    body:not(.home) .mobile-cta-bar { display: none; }
+    /* Add bottom padding so content isn't hidden behind bar */
+    body.home {
+        padding-bottom: 70px;
+    }
+}
+@media (min-width: 721px) {
+    .mobile-cta-bar { display: none !important; }
+}
+
+/* ============================================================
+   ENHANCEMENT 7: Better share button styling in header
+   ============================================================ */
+#share {
+    background: var(--forest);
+    color: white;
+    border: none;
+    padding: 0 14px;
+    min-height: 40px;
+    border-radius: 10px;
+    font-family: var(--sans);
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+#share:hover { background: var(--leaf); }
+#share svg { fill: currentColor; }
+
+/* ============================================================
+   ENHANCEMENT 8: Better focus states for accessibility
+   ============================================================ */
+button:focus-visible,
+a:focus-visible {
+    outline: 2px solid var(--forest);
+    outline-offset: 2px;
+}

@@ -29,6 +29,7 @@
 <link rel="stylesheet" href="css/ebook.css">
 </head>
 <body>
+<div class="read-progress" id="readProgress"></div>
 <header class="bar">
   <button class="icon-btn" id="tocBtn" aria-label="সূচিপত্র" aria-expanded="false">☰</button>
   <a class="brand" href="index.html"><img src="assets/mark.svg" alt="" width="28" height="28"><strong>রাষ্ট্রকে দেখা তিন চোখে</strong></a>
@@ -38,7 +39,10 @@
     <button class="icon-btn" id="inc" aria-label="লেখা বড় করুন">অ+</button>
     <button class="icon-btn" id="theme" aria-label="থিম বদলান">◐</button>
     <button class="icon-btn" id="ttsToggle" aria-label="শুনুন" title="শুনুন">♪</button>
-    <button id="share" aria-label="শেয়ার করুন">শেয়ার</button>
+    <button id="share" aria-label="শেয়ার করুন" title="শেয়ার করুন">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+      শেয়ার
+    </button>
   </div>
 </header>
 <div class="prog" id="prog"></div>
@@ -233,6 +237,8 @@
   <label class="tts-wake"><input type="checkbox" id="ttsWake"> স্ক্রিন ধরে রাখুন</label>
 </div>
 <div id="toast" role="status"></div>
+<script src="js/share-modal.js"></script>
+<script src="js/settings-panel.js"></script>
 <script src="js/ebook.js"></script>
 <script src="js/stats.js"></script>
 </body>

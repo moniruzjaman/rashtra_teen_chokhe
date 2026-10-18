@@ -49,13 +49,20 @@
     applyTheme();
     toast(["স্বয়ংক্রিয় থিম", "সেপিয়া থিম", "ডার্ক থিম"][ti]);
   };
-  if ($("share")) $("share").onclick = function () {
-    var u = location.href.split("#")[0];
-    var d = { title: "রাষ্ট্রকে দেখা তিন চোখে", text: "একটি রাষ্ট্রের গল্প—তিন চোখে", url: u };
-    if (navigator.share) navigator.share(d).catch(function () {});
-    else if (navigator.clipboard) navigator.clipboard.writeText(u).then(function () { toast("লিংক কপি হয়েছে"); });
-    else toast(u);
-  };
+  if ($("share")) {
+    // If share-modal.js is loaded, it handles the share button via its own DOMContentLoaded
+    // listener (which runs AFTER this IIFE because we attach it inside an event listener).
+    // We skip the basic onclick here to avoid double-binding.
+    if (!window.EBOOK_SHARE_MODAL) {
+      $("share").onclick = function () {
+        var u = location.href.split("#")[0];
+        var d = { title: "রাষ্ট্রকে দেখা তিন চোখে", text: "একটি রাষ্ট্রের গল্প—তিন চোখে", url: u };
+        if (navigator.share) navigator.share(d).catch(function () {});
+        else if (navigator.clipboard) navigator.clipboard.writeText(u).then(function () { toast("লিংক কপি হয়েছে"); });
+        else toast(u);
+      };
+    }
+  }
   if ($("topBtn")) $("topBtn").onclick = function () { window.scrollTo({ top: 0, behavior: "smooth" }); };
 
   var search = $("tocSearch");
@@ -78,6 +85,8 @@
     var h = document.documentElement;
     var p = h.scrollTop / (h.scrollHeight - h.clientHeight || 1);
     if ($("prog")) $("prog").style.width = (p * 100) + "%";
+    // Also update the new top reading-progress bar
+    if ($("readProgress")) $("readProgress").style.width = (Math.min(1, Math.max(0, p)) * 100) + "%";
     var cur = null;
     for (var i = 0; i < chapters.length; i++) {
       if (chapters[i].getBoundingClientRect().top < 140) cur = chapters[i];
