@@ -1,0 +1,26 @@
+name: Update Repository Metadata
+
+on:
+  workflow_dispatch:  # Manual trigger only
+
+jobs:
+  update-metadata:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      repository-projects: write
+    steps:
+      - name: Update repo description, homepage, and topics
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          curl -s -X PATCH \
+            -H "Authorization: token $GH_TOKEN" \
+            -H "Accept: application/vnd.github.mercy-preview+json" \
+            https://api.github.com/repos/${{ github.repository }} \
+            -d '{
+              "description": "রাষ্ট্রকে দেখা তিন চোখে — একটি রাষ্ট্রের গল্প: মানুষ, কর্মকর্তা ও রাজনীতিবিদের চোখে। বাংলা ই-বুক — পড়ুন, শুনুন, শেয়ার করুন।",
+              "homepage": "https://moniruzjaman.github.io/rashtra_teen_chokhe/",
+              "topics": ["ebook", "bengali", "bangladesh", "politics", "web-reader", "tts", "pwa", "github-pages", "noto-bengali", "rashtro"]
+            }'
+          echo "✅ Repository metadata updated"
