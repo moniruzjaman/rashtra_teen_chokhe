@@ -158,16 +158,21 @@
         m.querySelectorAll('.share-btn[data-share]').forEach(btn => {
             btn.addEventListener('click', async () => {
                 const platform = btn.dataset.share;
+                // Analytics: share button clicked
+                if (window.EBOOK_ANALYTICS) EBOOK_ANALYTICS.shareClick(platform, SHARE_MODAL.currentChapter);
                 if (platform === 'copy') {
                     const ok = await SHARE.copyLink();
                     const span = btn.querySelector('span');
                     const old = span.textContent;
                     span.textContent = ok ? 'কপি হয়েছে!' : 'ব্যর্থ';
                     setTimeout(() => span.textContent = old, 1500);
+                    if (ok && window.EBOOK_ANALYTICS) EBOOK_ANALYTICS.shareComplete(platform);
                 } else if (platform === 'native') {
-                    await SHARE.nativeShare();
+                    const ok = await SHARE.nativeShare();
+                    if (ok && window.EBOOK_ANALYTICS) EBOOK_ANALYTICS.shareComplete(platform);
                 } else {
                     SHARE.openPopup(SHARE.buildUrl(platform));
+                    if (window.EBOOK_ANALYTICS) EBOOK_ANALYTICS.shareComplete(platform);
                 }
             });
         });
@@ -179,6 +184,10 @@
             const old = btn.textContent;
             btn.textContent = ok ? '✓ কপি হয়েছে' : '✗ ব্যর্থ';
             setTimeout(() => btn.textContent = old, 1500);
+            if (ok && window.EBOOK_ANALYTICS) {
+                EBOOK_ANALYTICS.shareClick('copy', SHARE_MODAL.currentChapter);
+                EBOOK_ANALYTICS.shareComplete('copy');
+            }
         });
 
         return m;
@@ -186,8 +195,10 @@
 
     const SHARE_MODAL = {
         modal: null,
+        currentChapter: null,
         open(chapterId) {
             if (!this.modal) this.modal = buildModal();
+            this.currentChapter = chapterId;
             // Update link with chapter hash if provided
             const url = chapterId
                 ? `https://moniruzjaman.github.io/rashtra_teen_chokhe/read.html#${chapterId}`
@@ -196,6 +207,8 @@
             if (linkInput) linkInput.value = url;
             this.modal.classList.add('visible');
             document.body.style.overflow = 'hidden';
+            // Analytics: share modal opened
+            if (window.EBOOK_ANALYTICS) EBOOK_ANALYTICS.shareModalOpen(chapterId);
         },
         close() {
             if (this.modal) {

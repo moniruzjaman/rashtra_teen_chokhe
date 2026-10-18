@@ -145,20 +145,26 @@
         // Theme buttons
         p.querySelectorAll('.theme-btn').forEach(btn => {
             btn.addEventListener('click', () => {
-                settings.theme = btn.dataset.theme;
+                const newTheme = btn.dataset.theme;
+                const changed = newTheme !== settings.theme;
+                settings.theme = newTheme;
                 applyTheme(settings.theme);
                 saveSettings();
                 updateActiveButtons();
+                if (changed && window.EBOOK_ANALYTICS) EBOOK_ANALYTICS.themeChange(newTheme);
             });
         });
 
         // Font buttons
         p.querySelectorAll('.font-btn').forEach(btn => {
             btn.addEventListener('click', () => {
-                settings.fontFamily = btn.dataset.font;
+                const newFont = btn.dataset.font;
+                const changed = newFont !== settings.fontFamily;
+                settings.fontFamily = newFont;
                 applyFontFamily(settings.fontFamily);
                 saveSettings();
                 updateActiveButtons();
+                if (changed && window.EBOOK_ANALYTICS) EBOOK_ANALYTICS.fontChange(newFont);
             });
         });
 
@@ -172,7 +178,10 @@
             applyFontSize(v);
             fsValue.textContent = v + 'px';
             clearTimeout(fsDebounce);
-            fsDebounce = setTimeout(saveSettings, 400);
+            fsDebounce = setTimeout(() => {
+                saveSettings();
+                if (window.EBOOK_ANALYTICS) EBOOK_ANALYTICS.fontSizeChange(v);
+            }, 400);
         });
 
         // Line height slider
@@ -185,7 +194,10 @@
             applyLineHeight(v);
             lhValue.textContent = v.toFixed(2);
             clearTimeout(lhDebounce);
-            lhDebounce = setTimeout(saveSettings, 400);
+            lhDebounce = setTimeout(() => {
+                saveSettings();
+                if (window.EBOOK_ANALYTICS) EBOOK_ANALYTICS.lineHeightChange(v);
+            }, 400);
         });
 
         // Reset
@@ -227,6 +239,8 @@
             this.panel.classList.add('open');
             this.overlay.classList.add('visible');
             document.body.style.overflow = 'hidden';
+            // Analytics: settings panel opened
+            if (window.EBOOK_ANALYTICS) EBOOK_ANALYTICS.settingsOpen();
         },
         close() {
             if (this.panel) {

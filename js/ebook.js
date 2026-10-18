@@ -32,22 +32,32 @@
   var scrim = $("scrim");
   function tog(o) {
     if (!toc) return;
+    var wasOpen = toc.classList.contains("open");
     toc.classList.toggle("open", o);
     if (scrim) scrim.classList.toggle("on", o);
     var btn = $("tocBtn");
     if (btn) btn.setAttribute("aria-expanded", o ? "true" : "false");
+    // Analytics: TOC opened (only when going from closed → open)
+    if (o && !wasOpen && window.EBOOK_ANALYTICS) EBOOK_ANALYTICS.tocOpen();
   }
   if ($("tocBtn")) $("tocBtn").onclick = function () { tog(!toc.classList.contains("open")); };
   if (scrim) scrim.onclick = function () { tog(false); };
   if (toc) toc.addEventListener("click", function (e) {
-    if (e.target.tagName === "A") tog(false);
+    if (e.target.tagName === "A") {
+      tog(false);
+      // Analytics: TOC item clicked → navigate
+      var targetId = e.target.getAttribute("data-id") || e.target.getAttribute("href").replace("#", "");
+      if (targetId && window.EBOOK_ANALYTICS) EBOOK_ANALYTICS.tocNavigate(targetId);
+    }
   });
-  if ($("inc")) $("inc").onclick = function () { setFs(fs + 0.08); };
-  if ($("dec")) $("dec").onclick = function () { setFs(fs - 0.08); };
+  if ($("inc")) $("inc").onclick = function () { setFs(fs + 0.08); if (window.EBOOK_ANALYTICS) EBOOK_ANALYTICS.fontSizeChange(Math.round(fs * 16)); };
+  if ($("dec")) $("dec").onclick = function () { setFs(fs - 0.08); if (window.EBOOK_ANALYTICS) EBOOK_ANALYTICS.fontSizeChange(Math.round(fs * 16)); };
   if ($("theme")) $("theme").onclick = function () {
     ti = (ti + 1) % 3;
     applyTheme();
     toast(["স্বয়ংক্রিয় থিম", "সেপিয়া থিম", "ডার্ক থিম"][ti]);
+    // Analytics: theme changed via header button
+    if (window.EBOOK_ANALYTICS) EBOOK_ANALYTICS.themeChange(["auto", "sepia", "dark"][ti]);
   };
   if ($("share")) {
     // If share-modal.js is loaded, it handles the share button via its own DOMContentLoaded
@@ -97,6 +107,20 @@
       for (var k in links) links[k].classList.toggle("on", k === id);
       if ($("cur")) $("cur").textContent = cur ? (cur.dataset.title || "") : "রাষ্ট্রকে দেখা তিন চোখে";
       if (cur) set("pos", id);
+      // Analytics: chapter entered (skip 'top' which is the cover)
+      if (cur && id !== "top" && window.EBOOK_ANALYTICS) {
+        EBOOK_ANALYTICS.chapterRead(id, cur.dataset.title || id);
+      }
+    }
+    // Analytics: reading progress (milestone-based, per chapter)
+    if (cur && id !== "top" && window.EBOOK_ANALYTICS) {
+      var chRect = cur.getBoundingClientRect();
+      var chH = cur.offsetHeight;
+      if (chH > 0) {
+        var scrolledInCh = Math.max(0, -chRect.top);
+        var progress = Math.min(100, Math.max(0, (scrolledInCh / (chH + window.innerHeight * 0.5)) * 100));
+        EBOOK_ANALYTICS.readingProgress(id, progress);
+      }
     }
   }
   var ticking = false;
@@ -397,8 +421,19 @@ var tts = null;
         if (paused) { synth.resume(); paused = false; speaking = true; if (playBtn) playBtn.textContent = "❚❚"; requestWake(); return; }
         speakAt(speaking ? idx : currentIndex());
         requestWake();
+        // Analytics: TTS play (capture current chapter)
+        if (window.EBOOK_ANALYTICS) {
+          var curCh = chapters.reduce(function (p, c) { return c.getBoundingClientRect().top < 200 ? c : p; }, null);
+          if (curCh) EBOOK_ANALYTICS.ttsPlay(curCh.id, curCh.dataset.title || curCh.id);
+        }
       }
-      function pause() { synth.pause(); paused = true; speaking = false; if (playBtn) playBtn.textContent = "▶"; }
+      function pause() { synth.pause(); paused = true; speaking = false; if (playBtn) playBtn.textContent = "▶";
+        // Analytics: TTS pause
+        if (window.EBOOK_ANALYTICS) {
+          var curCh = chapters.reduce(function (p, c) { return c.getBoundingClientRect().top < 200 ? c : p; }, null);
+          if (curCh) EBOOK_ANALYTICS.ttsPause(curCh.id);
+        }
+      }
       function stop() {
         speaking = false; paused = false; lastMarked = -1;
         synth.cancel();
@@ -489,4 +524,26 @@ var tts = null;
   } else if ($("ttsToggle")) {
     $("ttsToggle").onclick = function () { toast("এই ব্রাউজারে পাঠ্য পড়া সমর্থিত নয়"); };
   }
+
+  // ── Analytics: track download clicks (EPUB/PDF) ─────────────
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest('a[data-asset], a[href*=".epub"], a[href*=".pdf"]');
+    if (a && window.EBOOK_ANALYTICS) {
+      var fmt = a.dataset.asset || (a.href.endsWith('.epub') ? 'epub' : a.href.endsWith('.pdf') ? 'pdf' : 'unknown');
+      EBOOK_ANALYTICS.downloadClick(fmt);
+    }
+    // Track external link clicks (anything leaving the site)
+    var ext = e.target.closest('a[href^="http"]:not([href*="moniruzjaman.github.io"])');
+    if (ext && window.EBOOK_ANALYTICS) {
+      EBOOK_ANALYTICS.externalLink(ext.href);
+    }
+  });
+
+  // ── Analytics: track "পড়া শুরু" CTA clicks ─────────────────
+  document.addEventListener('click', function (e) {
+    var cta = e.target.closest('a[href^="read.html"]');
+    if (cta && window.EBOOK_ANALYTICS) {
+      EBOOK_ANALYTICS.readStart();
+    }
+  });
 })();
