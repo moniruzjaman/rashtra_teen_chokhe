@@ -1,0 +1,457 @@
+/* ============================================================
+   Quote Card + Reader's Journal — নতুন ফিচারের স্টাইল
+   রাষ্ট্রকে দেখা তিন চোখে — Bengali Ebook
+   ============================================================ */
+
+/* ── ১. সিলেকশন পপআপ ("কার্ড বানান") ─────────────────────── */
+#qcPopup {
+    position: absolute;
+    z-index: 120;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--forest);
+    background: var(--forest);
+    color: #fff;
+    font-family: var(--sans);
+    font-size: .82rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(4px);
+    transition: opacity .15s ease, transform .15s ease;
+    user-select: none;
+    -webkit-user-select: none;
+}
+#qcPopup.on { opacity: 1; pointer-events: auto; transform: translateY(0); }
+#qcPopup:hover { filter: brightness(1.08); }
+
+/* ── ২. উক্তি কার্ড মোডাল ─────────────────────────────────── */
+.qc-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(10, 12, 10, 0.6);
+    z-index: 210;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+.qc-modal.visible { display: flex; }
+
+.qc-box {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    width: 100%;
+    max-width: 780px;
+    max-height: 94vh;
+    overflow-y: auto;
+    padding: 18px 20px 16px;
+    box-shadow: 0 18px 60px rgba(0, 0, 0, 0.35);
+}
+.qc-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+}
+.qc-head h2 {
+    font-family: var(--sans);
+    font-size: 1.12rem;
+    font-weight: 700;
+    color: var(--forest);
+    margin: 0;
+}
+.qc-dim { color: var(--mute); font-size: .85rem; font-weight: 400; }
+
+.qc-canvas-wrap {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    overflow: hidden;
+    line-height: 0;
+    background: #0002;
+}
+.qc-canvas-wrap canvas {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.qc-themes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 14px 0 12px;
+}
+.qc-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 13px;
+    border-radius: 999px;
+    border: 1.5px solid var(--line);
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: .84rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color .15s, background .15s;
+}
+.qc-chip .qc-dot {
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    border: 1px solid rgba(0, 0, 0, 0.25);
+    flex: 0 0 auto;
+}
+.qc-chip:hover { border-color: var(--gold); }
+.qc-chip.on {
+    border-color: var(--forest);
+    background: color-mix(in srgb, var(--forest) 12%, var(--paper));
+    box-shadow: 0 0 0 1px var(--forest) inset;
+}
+
+.qc-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+.qc-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 9px 16px;
+    border-radius: 9px;
+    border: 1px solid var(--line);
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: .88rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, border-color .15s;
+}
+.qc-btn:hover { border-color: var(--forest); }
+.qc-primary {
+    background: var(--forest);
+    border-color: var(--forest);
+    color: #fff;
+}
+.qc-primary:hover { filter: brightness(1.1); color: #fff; }
+
+.qc-share-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--line);
+}
+.qc-share {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 13px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: .84rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+.qc-share:hover { filter: brightness(0.97); }
+.qc-wa { color: #128c7e; }
+.qc-fb { color: #1877f2; }
+.qc-x  { color: inherit; }
+.qc-tg { color: #229ed9; }
+:root[data-theme="dark"] .qc-share,
+:root:not([data-theme]) .qc-share { border-color: var(--line); }
+:root[data-theme="dark"] .qc-share { background: var(--card); }
+
+.qc-hint {
+    margin: 10px 0 0;
+    font-family: var(--sans);
+    font-size: .78rem;
+    color: var(--mute);
+    line-height: 1.6;
+}
+
+@media (max-width: 560px) {
+    .qc-box { padding: 14px; max-height: 96vh; }
+    .qc-share span { display: none; }
+    .qc-share { padding: 8px 11px; }
+}
+
+/* ── ৩. পাঠকের নোটবুক — অধ্যায়ের ভেতরের অংশ ──────────────── */
+.rj-journal {
+    margin: 30px 0 6px;
+    padding: 16px 18px 12px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--hl) 55%, var(--card));
+}
+.rj-journal-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+}
+.rj-journal-title {
+    font-family: var(--sans);
+    font-size: .92rem;
+    font-weight: 700;
+    color: var(--forest);
+}
+.rj-bmk-btn {
+    font-family: var(--sans);
+    font-size: .78rem;
+    font-weight: 600;
+    padding: 5px 11px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: var(--paper);
+    color: var(--mute);
+    cursor: pointer;
+    transition: all .15s;
+}
+.rj-bmk-btn:hover { border-color: var(--gold); color: var(--ink); }
+.rj-bmk-btn.on {
+    background: color-mix(in srgb, var(--gold) 22%, var(--paper));
+    border-color: var(--gold);
+    color: var(--ink);
+}
+.rj-note {
+    width: 100%;
+    min-height: 88px;
+    resize: vertical;
+    padding: 10px 12px;
+    border-radius: 9px;
+    border: 1px solid var(--line);
+    background: var(--card);
+    color: var(--ink);
+    font-family: var(--serif);
+    font-size: .95rem;
+    line-height: 1.8;
+}
+.rj-note:focus {
+    outline: none;
+    border-color: var(--forest);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--forest) 18%, transparent);
+}
+.rj-journal-foot {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 9px;
+    flex-wrap: wrap;
+}
+.rj-save-btn,
+.rj-copy-one {
+    font-family: var(--sans);
+    font-size: .8rem;
+    font-weight: 600;
+    padding: 6px 13px;
+    border-radius: 8px;
+    cursor: pointer;
+    border: 1px solid var(--forest);
+    background: var(--forest);
+    color: #fff;
+    transition: filter .15s;
+}
+.rj-save-btn:hover, .rj-copy-one:hover { filter: brightness(1.1); }
+.rj-copy-one {
+    background: transparent;
+    color: var(--forest);
+}
+.rj-state {
+    font-family: var(--sans);
+    font-size: .75rem;
+    color: var(--mute);
+    margin-left: auto;
+}
+
+/* সূচিপত্রে বুকমার্ক চিহ্ন */
+#toc li.rj-bmk a::after {
+    content: " 🔖";
+    font-size: .78em;
+}
+
+/* ── ৪. নোটবুক ড্রয়ার ────────────────────────────────────── */
+.rj-drawer-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(10, 12, 10, 0.55);
+    z-index: 220;
+    display: none;
+    justify-content: flex-end;
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+}
+.rj-drawer-overlay.visible { display: flex; }
+
+.rj-drawer {
+    width: 100%;
+    max-width: 460px;
+    height: 100%;
+    background: var(--card);
+    border-left: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    animation: rjSlide .22s ease;
+}
+@keyframes rjSlide {
+    from { transform: translateX(24px); opacity: 0; }
+    to   { transform: translateX(0); opacity: 1; }
+}
+.rj-drawer-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--line);
+}
+.rj-drawer-head h2 {
+    font-family: var(--sans);
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--forest);
+    margin: 0;
+}
+.rj-drawer-stats {
+    padding: 10px 20px;
+    font-family: var(--sans);
+    font-size: .82rem;
+    color: var(--mute);
+    border-bottom: 1px dashed var(--line);
+}
+.rj-drawer-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px 16px;
+}
+.rj-empty {
+    padding: 40px 16px;
+    text-align: center;
+    color: var(--mute);
+    font-family: var(--sans);
+    font-size: .88rem;
+    line-height: 1.9;
+}
+.rj-item {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 12px 10px;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    background: var(--paper);
+    margin-bottom: 8px;
+}
+.rj-item-main { min-width: 0; }
+.rj-item-title {
+    display: block;
+    font-family: var(--sans);
+    font-weight: 700;
+    font-size: .9rem;
+    color: var(--forest);
+    text-decoration: none;
+    line-height: 1.55;
+}
+.rj-item-title:hover { text-decoration: underline; }
+.rj-item-note {
+    font-family: var(--serif);
+    font-size: .86rem;
+    color: var(--ink);
+    line-height: 1.7;
+    margin-top: 4px;
+    white-space: pre-wrap;
+}
+.rj-item-date {
+    font-family: var(--sans);
+    font-size: .72rem;
+    color: var(--mute);
+    margin-top: 4px;
+}
+.rj-item-bmk {
+    font-family: var(--sans);
+    font-size: .75rem;
+    color: var(--mute);
+    margin-top: 4px;
+}
+.rj-item-ops {
+    display: flex;
+    gap: 6px;
+    flex: 0 0 auto;
+}
+.rj-item-ops button {
+    font-family: var(--sans);
+    font-size: .75rem;
+    padding: 4px 9px;
+    border-radius: 7px;
+    border: 1px solid var(--line);
+    background: var(--card);
+    color: var(--mute);
+    cursor: pointer;
+}
+.rj-item-ops button:hover { border-color: var(--crimson); color: var(--crimson); }
+
+.rj-drawer-actions {
+    display: flex;
+    gap: 8px;
+    padding: 14px 16px;
+    border-top: 1px solid var(--line);
+    flex-wrap: wrap;
+}
+.rj-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--sans);
+    font-size: .84rem;
+    font-weight: 600;
+    padding: 9px 14px;
+    border-radius: 9px;
+    border: 1px solid var(--line);
+    background: var(--paper);
+    color: var(--ink);
+    cursor: pointer;
+    flex: 1;
+    justify-content: center;
+}
+.rj-btn:hover { border-color: var(--forest); }
+.rj-primary {
+    background: var(--forest);
+    border-color: var(--forest);
+    color: #fff;
+}
+.rj-primary:hover { filter: brightness(1.1); }
+.rj-danger:hover {
+    border-color: var(--crimson);
+    color: var(--crimson);
+}
+.rj-drawer-foot {
+    margin: 0;
+    padding: 0 16px 16px;
+    font-family: var(--sans);
+    font-size: .74rem;
+    color: var(--mute);
+    line-height: 1.6;
+}
+
+@media (max-width: 560px) {
+    .rj-drawer { max-width: 100%; }
+    .rj-state { margin-left: 0; width: 100%; }
+}
