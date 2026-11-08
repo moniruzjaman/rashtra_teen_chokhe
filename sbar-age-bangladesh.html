@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>সবার আগে বাংলাদেশ — Bangladesh Before All</title>
+
+<!-- Heavy Bangla grotesques + italic grotesque for the English line -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@700;800&family=Noto+Sans+Bengali:wght@800;900&family=Hind+Siliguri:wght@700&family=Montserrat:ital,wght@1,800&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:    #f2f1ee;
+  --green: #0d7a3c;   /* poster green (flag-inspired) */
+  --red:   #e0212c;   /* poster red   (flag-inspired) */
+  --slant: -10deg;    /* the oblique "poster" shear   */
+}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;display:grid;place-items:center;background:var(--bg)}
+.poster{text-align:center;padding:4rem 1rem;user-select:none}
+
+/* ---- Bangla block ---- */
+.bn{
+  font-family:"Anek Bangla","Noto Sans Bengali","Hind Siliguri",
+              "Nikosh","SolaimanLipi",sans-serif;   /* local fallbacks */
+  font-weight:800;
+  transform:skewX(var(--slant));          /* faux-italic / poster slant */
+  -webkit-text-stroke:.035em currentColor; /* fatten glyphs (stroke = fill color) */
+  letter-spacing:-.02em;                   /* tight poster tracking */
+  line-height:.82;                         /* tight leading */
+}
+.bn .top{display:block;color:var(--green);font-size:clamp(3.5rem,11vw,9rem)}
+.bn .mid{display:block;color:var(--red);  font-size:clamp(1.6rem,5vw,4rem);
+         width:max-content;margin:-.15em auto -.12em;}  /* red word sandwiched/overlapped */
+.bn .big{display:block;color:var(--green);font-size:clamp(4.5rem,15vw,12.5rem)}
+
+/* ---- English tagline ---- */
+.en{
+  margin-top:2.2rem;color:var(--red);
+  font-family:Montserrat,"Helvetica Neue",Arial,Roboto,"Noto Sans",sans-serif;
+  font-style:italic;font-weight:800;
+  font-size:clamp(1.4rem,5.2vw,4.2rem);
+}
+
+/* ==== optional Bangla "font effects" ==== */
+.chunky{ /* even heavier: stroke + same-color shadows */
+  -webkit-text-stroke:.06em currentColor;
+  text-shadow:.015em .015em 0 currentColor,-.01em -.01em 0 currentColor;
+}
+.flag{ /* flag gradient fill */
+  background:linear-gradient(180deg,var(--green) 0 55%,var(--red) 55% 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  -webkit-text-stroke:0;
+}
+.outline{ /* outline-only lettering */
+  color:transparent;-webkit-text-stroke:.02em var(--green);
+}
+</style>
+</head>
+<body>
+
+<div class="poster" role="img" aria-label="সবার আগে বাংলাদেশ — Bangladesh Before All">
+  <div class="bn">
+    <span class="top">সবার</span>
+    <span class="mid">আগে</span>
+    <span class="big">বাংলাদেশ</span>
+  </div>
+  <div class="en">Bangladesh Before All</div>
+</div>
+</body>
+</html>
